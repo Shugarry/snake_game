@@ -1,0 +1,546 @@
+li a2, 1
+li a3, 1
+call draw_at
+li a2, 2
+li a3, 1
+call draw_at
+li a2, 5
+li a3, 1
+call draw_at
+li a2, 9
+li a3, 1
+call draw_at
+li a2, 10
+li a3, 1
+call draw_at
+li a2, 12
+li a3, 1
+call draw_at
+li a2, 13
+li a3, 1
+call draw_at
+li a2, 23
+li a3, 1
+call draw_at
+li a2, 24
+li a3, 1
+call draw_at
+li a2, 26
+li a3, 1
+call draw_at
+li a2, 27
+li a3, 1
+call draw_at
+li a2, 28
+li a3, 1
+call draw_at
+li a2, 1
+li a3, 2
+call draw_at
+li a2, 4
+li a3, 2
+call draw_at
+li a2, 6
+li a3, 2
+call draw_at
+li a2, 8
+li a3, 2
+call draw_at
+li a2, 12
+li a3, 2
+call draw_at
+li a2, 14
+li a3, 2
+call draw_at
+li a2, 24
+li a3, 2
+call draw_at
+li a2, 26
+li a3, 2
+call draw_at
+li a2, 28
+li a3, 2
+call draw_at
+li a2, 1
+li a3, 3
+call draw_at
+li a2, 2
+li a3, 3
+call draw_at
+li a2, 4
+li a3, 3
+call draw_at
+li a2, 6
+li a3, 3
+call draw_at
+li a2, 8
+li a3, 3
+call draw_at
+li a2, 10
+li a3, 3
+call draw_at
+li a2, 12
+li a3, 3
+call draw_at
+li a2, 14
+li a3, 3
+call draw_at
+li a2, 24
+li a3, 3
+call draw_at
+li a2, 26
+li a3, 3
+call draw_at
+li a2, 28
+li a3, 3
+call draw_at
+li a2, 1
+li a3, 4
+call draw_at
+li a2, 3
+li a3, 4
+call draw_at
+li a2, 5
+li a3, 4
+call draw_at
+li a2, 7
+li a3, 4
+call draw_at
+li a2, 9
+li a3, 4
+call draw_at
+li a2, 10
+li a3, 4
+call draw_at
+li a2, 11
+li a3, 4
+call draw_at
+li a2, 12
+li a3, 4
+call draw_at
+li a2, 13
+li a3, 4
+call draw_at
+li a2, 24
+li a3, 4
+call draw_at
+li a2, 26
+li a3, 4
+call draw_at
+li a2, 27
+li a3, 4
+call draw_at
+li a2, 28
+li a3, 4
+call draw_at
+li a2, 3
+li a3, 15
+call draw_at
+li a2, 4
+li a3, 15
+call draw_at
+li a2, 6
+li a3, 15
+call draw_at
+li a2, 8
+li a3, 15
+call draw_at
+li a2, 10
+li a3, 15
+call draw_at
+li a2, 11
+li a3, 15
+call draw_at
+li a2, 12
+li a3, 15
+call draw_at
+li a2, 13
+li a3, 15
+call draw_at
+li a2, 15
+li a3, 15
+call draw_at
+li a2, 16
+li a3, 15
+call draw_at
+li a2, 17
+li a3, 15
+call draw_at
+li a2, 18
+li a3, 15
+call draw_at
+li a2, 20
+li a3, 15
+call draw_at
+li a2, 21
+li a3, 15
+call draw_at
+li a2, 22
+li a3, 15
+call draw_at
+li a2, 23
+li a3, 15
+call draw_at
+li a2, 24
+li a3, 15
+call draw_at
+li a2, 25
+li a3, 15
+call draw_at
+li a2, 26
+li a3, 15
+call draw_at
+li a2, 2
+li a3, 16
+call draw_at
+li a2, 5
+li a3, 16
+call draw_at
+li a2, 7
+li a3, 16
+call draw_at
+li a2, 8
+li a3, 16
+call draw_at
+li a2, 9
+li a3, 16
+call draw_at
+li a2, 10
+li a3, 16
+call draw_at
+li a2, 11
+li a3, 16
+call draw_at
+li a2, 12
+li a3, 16
+call draw_at
+li a2, 15
+li a3, 16
+call draw_at
+li a2, 17
+li a3, 16
+call draw_at
+li a2, 18
+li a3, 16
+call draw_at
+li a2, 20
+li a3, 16
+call draw_at
+li a2, 21
+li a3, 16
+call draw_at
+li a2, 22
+li a3, 16
+call draw_at
+li a2, 24
+li a3, 16
+call draw_at
+li a2, 25
+li a3, 16
+call draw_at
+li a2, 26
+li a3, 16
+call draw_at
+li a2, 2
+li a3, 17
+call draw_at
+li a2, 4
+li a3, 17
+call draw_at
+li a2, 5
+li a3, 17
+call draw_at
+li a2, 6
+li a3, 17
+call draw_at
+li a2, 7
+li a3, 17
+call draw_at
+li a2, 8
+li a3, 17
+call draw_at
+li a2, 10
+li a3, 17
+call draw_at
+li a2, 11
+li a3, 17
+call draw_at
+li a2, 15
+li a3, 17
+call draw_at
+li a2, 17
+li a3, 17
+call draw_at
+li a2, 20
+li a3, 17
+call draw_at
+li a2, 21
+li a3, 17
+call draw_at
+li a2, 24
+li a3, 17
+call draw_at
+li a2, 25
+li a3, 17
+call draw_at
+li a2, 3
+li a3, 18
+call draw_at
+li a2, 4
+li a3, 18
+call draw_at
+li a2, 5
+li a3, 18
+call draw_at
+li a2, 7
+li a3, 18
+call draw_at
+li a2, 8
+li a3, 18
+call draw_at
+li a2, 10
+li a3, 18
+call draw_at
+li a2, 11
+li a3, 18
+call draw_at
+li a2, 12
+li a3, 18
+call draw_at
+li a2, 13
+li a3, 18
+call draw_at
+li a2, 15
+li a3, 18
+call draw_at
+li a2, 16
+li a3, 18
+call draw_at
+li a2, 17
+li a3, 18
+call draw_at
+li a2, 19
+li a3, 18
+call draw_at
+li a2, 21
+li a3, 18
+call draw_at
+li a2, 22
+li a3, 18
+call draw_at
+li a2, 23
+li a3, 18
+call draw_at
+li a2, 24
+li a3, 18
+call draw_at
+li a2, 26
+li a3, 18
+call draw_at
+li a2, 2
+li a3, 27
+call draw_at
+li a2, 3
+li a3, 27
+call draw_at
+li a2, 8
+li a3, 27
+call draw_at
+li a2, 10
+li a3, 27
+call draw_at
+li a2, 13
+li a3, 27
+call draw_at
+li a2, 14
+li a3, 27
+call draw_at
+li a2, 15
+li a3, 27
+call draw_at
+li a2, 19
+li a3, 27
+call draw_at
+li a2, 20
+li a3, 27
+call draw_at
+li a2, 22
+li a3, 27
+call draw_at
+li a2, 24
+li a3, 27
+call draw_at
+li a2, 26
+li a3, 27
+call draw_at
+li a2, 27
+li a3, 27
+call draw_at
+li a2, 28
+li a3, 27
+call draw_at
+li a2, 29
+li a3, 27
+call draw_at
+li a2, 2
+li a3, 28
+call draw_at
+li a2, 4
+li a3, 28
+call draw_at
+li a2, 5
+li a3, 28
+call draw_at
+li a2, 7
+li a3, 28
+call draw_at
+li a2, 9
+li a3, 28
+call draw_at
+li a2, 10
+li a3, 28
+call draw_at
+li a2, 12
+li a3, 28
+call draw_at
+li a2, 13
+li a3, 28
+call draw_at
+li a2, 14
+li a3, 28
+call draw_at
+li a2, 18
+li a3, 28
+call draw_at
+li a2, 21
+li a3, 28
+call draw_at
+li a2, 23
+li a3, 28
+call draw_at
+li a2, 24
+li a3, 28
+call draw_at
+li a2, 25
+li a3, 28
+call draw_at
+li a2, 26
+li a3, 28
+call draw_at
+li a2, 27
+li a3, 28
+call draw_at
+li a2, 28
+li a3, 28
+call draw_at
+li a2, 2
+li a3, 29
+call draw_at
+li a2, 4
+li a3, 29
+call draw_at
+li a2, 6
+li a3, 29
+call draw_at
+li a2, 7
+li a3, 29
+call draw_at
+li a2, 8
+li a3, 29
+call draw_at
+li a2, 9
+li a3, 29
+call draw_at
+li a2, 10
+li a3, 29
+call draw_at
+li a2, 11
+li a3, 29
+call draw_at
+li a2, 13
+li a3, 29
+call draw_at
+li a2, 18
+li a3, 29
+call draw_at
+li a2, 20
+li a3, 29
+call draw_at
+li a2, 21
+li a3, 29
+call draw_at
+li a2, 22
+li a3, 29
+call draw_at
+li a2, 23
+li a3, 29
+call draw_at
+li a2, 24
+li a3, 29
+call draw_at
+li a2, 26
+li a3, 29
+call draw_at
+li a2, 27
+li a3, 29
+call draw_at
+li a2, 1
+li a3, 30
+call draw_at
+li a2, 2
+li a3, 30
+call draw_at
+li a2, 4
+li a3, 30
+call draw_at
+li a2, 6
+li a3, 30
+call draw_at
+li a2, 7
+li a3, 30
+call draw_at
+li a2, 9
+li a3, 30
+call draw_at
+li a2, 10
+li a3, 30
+call draw_at
+li a2, 12
+li a3, 30
+call draw_at
+li a2, 13
+li a3, 30
+call draw_at
+li a2, 14
+li a3, 30
+call draw_at
+li a2, 15
+li a3, 30
+call draw_at
+li a2, 19
+li a3, 30
+call draw_at
+li a2, 20
+li a3, 30
+call draw_at
+li a2, 21
+li a3, 30
+call draw_at
+li a2, 23
+li a3, 30
+call draw_at
+li a2, 24
+li a3, 30
+call draw_at
+li a2, 26
+li a3, 30
+call draw_at
+li a2, 27
+li a3, 30
+call draw_at
+li a2, 28
+li a3, 30
+call draw_at
+li a2, 29
+li a3, 30
+call draw_at
