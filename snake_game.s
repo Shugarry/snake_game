@@ -10,11 +10,19 @@
 	snake:			.space 40	# Array size 10 words basically
 	head_x:			.word 16	# x, y coords for head
 	head_y:			.word 16
+	vel_x:			.word 1
+	vel_y:			.word 0
+
+	black_color: 	.word 0x00000000
 	border_color:	.word 0x000000FF
 	snake_color:	.word 0x0000FF00
 	apple_color:	.word 0x00FF0000
 	text_color:		.word 0x00BBBBBB
+	
 	screen:			.word 0x10040000	# screen address
+	input:			.word 0xFFFF0000
+	input_data:		.word 0xFFFF0004
+	
 	
 	pixel_size:		.word 8
 	length:			.word 256	# screen len/width
