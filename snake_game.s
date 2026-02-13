@@ -222,7 +222,7 @@ update_snake:
 	add t2, t2, a0
 
 	la t3, snake
-	lw t5, snake_length
+	lw t4, snake_length
 	li t5, 0				# iterator
 
 body_collision_loop:		#iterate array to check for collision
