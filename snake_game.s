@@ -14,6 +14,8 @@
 	head_y:			.word 16
 	vel_x:			.word 1
 	vel_y:			.word 0
+	apples:			.space 80
+	max_apples:		.word 1
 
 	black_color: 	.word 0x00000000
 	border_color:	.word 0x000000FF
@@ -48,6 +50,7 @@ main:
 
 	lw s2, head_x
 	lw s3, head_y
+	lw s5, apples
 	
 	mv a1, s2 # Args for offset calc (head_x = a1, head_y = a2)
 	mv a2, s3
@@ -126,6 +129,10 @@ main:
 	li a7, 4
 	ecall
 
+	call spawn_food
+	li a7, 10
+	ecall
+	
 	call difficulty_select
 
 	call main_loop
@@ -133,6 +140,65 @@ main:
 	# End program	
 	li a7, 10
 	ecall
+	
+get_random_number:
+	li a0 0
+	li a1 29
+	li a7, 42
+	ecall
+	addi a0, a0, 1
+	ret
+	
+spawn_food:
+	addi sp, sp, -16
+	sw ra 0(sp)
+	
+	# Direccion x
+	call get_random_number
+	
+	li a1, 0
+	li a2, 0
+	call set_elem
+	
+	# Direccion y
+	call get_random_number
+	
+	li a1, 0
+	li a2, 1
+	call set_elem
+	
+	li a1, 0
+	li a2, 0
+	call get_elem
+	mv t0, a0
+	
+	li a1, 0
+	li a2, 1
+	call get_elem
+	mv t1, a0
+
+	lw a0, apple_color
+	mv a1, s0
+	lw a2, 0(t0)
+	lw a3, 0(t1)
+	call draw_at
+
+set_elem:
+    slli t1, a1, 3         # fila*8
+    slli t2, a2, 2         # columna*4
+    add  t1, t1, t2        # offset = fila*8 + columna*4
+    add  t1, s5, t1        # dirección absoluta
+    sw   a0, 0(t1)	   # Guardamos a0 en la posiciones calculada de fila a1, columna a2
+    ret
+	
+get_elem:
+    slli t1, a1, 3
+    slli t2, a2, 2
+    add  t1, t1, t2
+    add  t1, s5, t1
+    lw   a0, 0(t1)
+    ret
+
 
 difficulty_select:
 	li a0, 100 # 100 ms delay
