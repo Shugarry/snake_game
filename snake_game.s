@@ -1,6 +1,6 @@
 .data
-	snake:			.space 40	# Array size 10 words basically
-	snake_length:	.word 5		# snake length including head (makes life easier). starts at 2
+	snake:			.space 1024	# Array size 10 words basically
+	snake_length:	.word 3		# snake length including head (makes life easier). starts at 2
 	head_x:			.word 16	# x, y coords for head
 	head_y:			.word 16
 	vel_x:			.word 1
@@ -23,11 +23,27 @@
 	difficulty_ms:	.word 0
 
 	game_over_str:	.asciz "game over\n"
-	difficulty_str:	.asciz "please select difficulty 1 2 or 3 in MMIO keyboard input\n'"
+	difficulty_str:	.asciz "please select difficulty 1 2 or 3 in MMIO keyboard input\n"
 
 .text
 .globl main
 main:
+	# loop to paint entire screen black basically because they arent when the program starts
+	lw t0, screen
+	lw t1, black_color
+	lw t2, total_bytes
+
+	add t3, t0, t2
+	mv t4, t0
+
+clear_loop:
+    bge t4, t3, clear_done
+    sw t1, 0(t4)
+    addi t4, t4, 4
+    j clear_loop
+
+clear_done:
+
 	lw a0, screen
 	lw a1, border_color
 	call draw_border
@@ -41,7 +57,7 @@ main:
 # --- draw full starting snake ---
 	la t5, snake        # array base
 	li t6, 0            # i = 0
-	li t4, 5
+	li t4, 3
 
 init_loop:
     bge t6, t4, init_done
@@ -70,6 +86,7 @@ store_seg:
     j init_loop
 
 init_done:
+	call spawn_apple
 
 	la a0, difficulty_str
 	li a7, 4
@@ -82,6 +99,43 @@ init_done:
 	# End program	
 	li a7, 10
 	ecall
+
+spawn_apple:
+    addi sp, sp, -12
+    sw   ra, 0(sp) 
+spawn_try:
+
+    li a7, 42        # random syscall
+	li a0, 2
+    li a1, 28
+    ecall
+    mv t0, a0
+
+    li a7, 42
+	li a0, 2
+    li a1, 28
+    ecall
+    mv t1, a0
+
+# -------- GET SCREEN ADDRESS --------
+    mv a1, t0
+    mv a2, t1
+    call get_address
+
+    add t2, s0, a0
+
+# -------- CHECK IF BLACK --------
+    lw t3, 0(t2)
+    lw t4, black_color
+    bne t3, t4, spawn_try
+
+# -------- PAINT APPLE --------
+    lw t4, apple_color
+    sw t4, 0(t2)
+
+    lw ra, 0(sp)
+    addi sp, sp, 12
+    ret
 
 difficulty_select:
 	li a0, 100 # 100 ms delay
@@ -138,13 +192,8 @@ update_snake:
 	slli t1, t1, 2
 	add t1, t0, t1
 
-	# paint tail end black
-	lw t2, 0(t1)
-	lw t0, black_color
-	sw t0, 0(t2)
-
-	#shift snake array
-	call shift_snake_array
+	# save tail end adress
+	mv s5, t1
 
 	# update head pos
 	lw t0, head_x
@@ -153,6 +202,9 @@ update_snake:
 	lw t3, vel_y
 	add t0, t0, t2
 	add t1, t1, t3
+
+	mv s2, t0 
+	mv s3, t1 
 	
 # calculate next head screen address
 	mv a1, t0
@@ -167,6 +219,9 @@ update_snake:
 
 # --- collision checks using COLOR ---
 
+	lw t4, apple_color
+	beq t3, t4, grow_snake     # hit wall
+
 	lw t4, border_color
 	beq t3, t4, game_over     # hit wall
 
@@ -176,9 +231,29 @@ update_snake:
 	lw t4, snake_head_color
 	beq t3, t4, game_over     # hit itself
 
+	# paint tail end black
+	lw t2, 0(s5)
+	lw t0, black_color
+	sw t0, 0(t2)
+
+	#shift snake array
+	call shift_snake_array
+	j dont_grow
+
+grow_snake:
+	lw t0, snake_length
+	la t1, snake_length
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	call spawn_apple
+	call shift_snake_array
+
+dont_grow:
 # body_collision_done:
 	
 	# store new head coordinates
+	mv t0, s2
+	mv t1, s3
 	la t2, head_x
 	la t3, head_y
 	sw t0, 0(t2)
