@@ -1,12 +1,3 @@
-# SNAKE GAME (Group 2)
-# Challenge 6
-# 
-# s registers: global constant values
-# t registers: temp variable registers
-# 
-# 2WIDTH x HEIGHT = 256 x 256
-# Pixel size: 8 
-#
 .data
 	snake:			.space 40	# Array size 10 words basically
 	snake_length:	.word 5		# snake length including head (makes life easier). starts at 2
@@ -41,86 +32,44 @@ main:
 	lw a1, border_color
 	call draw_border
 
-	# Load head coords and screen ADRESSES
 	lw s0, screen
 	lw s1, snake_color
 	lw s4, snake_head_color
-
 	lw s2, head_x
 	lw s3, head_y
-	
-	mv a1, s2 # Args for offset calc (head_x = a1, head_y = a2)
-	mv a2, s3
-	
-	# Calculate offset, stored in a0
-	call head_offset_calc
-	
-	# Add the offset to the "pointer", store in t0
-	add t0, s0, a0
-	
-	# Change pixel color
-	sw s4, 0(t0)
-	
-	# Store the "coordinate" in the array
-	li a0, 0	# Store in 0 offset of snake array, first position
-	mv a1, t0	# Argument for address to store
-	call store_address_snake
 
-	# same steps as before but for "tail" of the snake	
-	li t0, -1
-	mv a1, s2
-	mv a2, s3
-	
-	add a1, a1, t0	# for tail subtract 1 to x coord
-	call head_offset_calc
-	add t0, s0, a0
-	sw s1, 0(t0)
-	
-	li a0, 1	# second index of array
-	mv a1, t0
-	call store_address_snake
-	
-	# repeat for second block of tail
-	li t0, -2
-	mv a1, s2
-	mv a2, s3
-	
-	add a1, a1, t0	# for tail subtract 1 to x coord
-	call head_offset_calc
-	add t0, s0, a0
-	sw s1, 0(t0)
-	
-	li a0, 2	# second index of array
-	mv a1, t0
-	call store_address_snake
-	
-	# repeat for third block of tail
-	li t0, -3
-	mv a1, s2
-	mv a2, s3
-	
-	add a1, a1, t0
-	call head_offset_calc
-	add t0, s0, a0
-	sw s1, 0(t0)
-	
-	li a0, 3	# third index of array
-	mv a1, t0
-	call store_address_snake
+# --- draw full starting snake ---
+	la t5, snake        # array base
+	li t6, 0            # i = 0
+	li t4, 5
 
-	# repeat for fourth block of tail
-	li t0, -4
-	mv a1, s2
-	mv a2, s3
-	
-	add a1, a1, t0
-	call head_offset_calc
-	add t0, s0, a0
-	sw s1, 0(t0)
-	
-	li a0, 4	# fourth index of array
-	mv a1, t0
-	call store_address_snake
+init_loop:
+    bge t6, t4, init_done
+
+    sub t0, zero, t6        # t0 = -i
+    add a1, s2, t0          # x = head_x - i
+    mv  a2, s3              # y = head_y
+
+    call get_address
+    add t1, s0, a0          # absolute pixel addr
+
+    beqz t6, draw_head
+
+    sw s1, 0(t1)            # body
+    j store_seg
+
+draw_head:
+    sw s4, 0(t1)
+
+store_seg:
+    slli t2, t6, 2
+    add t3, t5, t2
+    sw t1, 0(t3)
+
+    addi t6, t6, 1
+    j init_loop
+
+init_done:
 
 	la a0, difficulty_str
 	li a7, 4
@@ -205,39 +154,29 @@ update_snake:
 	add t0, t0, t2
 	add t1, t1, t3
 	
-	# check wall collision
-    li t4, 1
-    blt t0, t4, game_over      # if head_x < 0
-    blt t1, t4, game_over      # if head_y < 0
-    li t5, 30
-    bgt t0, t5, game_over      # if head_x > 31
-    bgt t1, t5, game_over      # if head_y > 31
-	
-	# check body collision
-	mv a1, t0				# head_x
-	mv a2, t1				# head_y
-	call head_offset_calc
+# calculate next head screen address
+	mv a1, t0
+	mv a2, t1
+	call get_address
 
 	lw t2, screen
-	add t2, t2, a0
+	add t2, t2, a0        # t2 = next head pixel address
 
-	la t3, snake
-	lw t4, snake_length
-	li t5, 0				# iterator
+# load pixel color at next position
+	lw t3, 0(t2)
 
-body_collision_loop:		#iterate array to check for collision
-	bge t5, t4, body_collision_done
+# --- collision checks using COLOR ---
 
-	slli t6, t5, 2
-	add t6, t6, t3
-	lw t6, 0(t6)
+	lw t4, border_color
+	beq t3, t4, game_over     # hit wall
 
-	beq t6, t2, game_over
+	lw t4, snake_color
+	beq t3, t4, game_over     # hit body
 
-	addi t5, t5, 1
-	j body_collision_loop
+	lw t4, snake_head_color
+	beq t3, t4, game_over     # hit itself
 
-body_collision_done:
+# body_collision_done:
 	
 	# store new head coordinates
 	la t2, head_x
@@ -248,7 +187,7 @@ body_collision_done:
     # new head address calculation
     mv a1, t0				# a1 = new head_x
     mv a2, t1				# a2 = new head_y
-    call head_offset_calc	# returns offset in a0
+    call get_address	# returns offset in a0
 
     lw t3, screen			# screen base
     add t4, t3, a0			# absolute screen address
@@ -417,7 +356,7 @@ db_end:
 # a1 -> head_x coord
 # a2 -> head_y coord
 # ret -> offset
-head_offset_calc:
+get_address:
 	slli a0, a2, 5	# head_y x 32
 	add a0, a0, a1	# add head_x
 	slli a0, a0, 2	# multiply by 4
