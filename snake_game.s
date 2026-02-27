@@ -23,37 +23,29 @@
 	difficulty_ms:	.word 0
 
 	game_over_str:	.asciz "game over\n"
-	difficulty_str:	.asciz "please select difficulty 1 2 or 3 in MMIO keyboard input\n"
-
+	score_str:		.asciz "SCORE: "
+	newline:		.asciz "\n"
 .text
 .globl main
 main:
-	# loop to paint entire screen black basically because they arent when the program starts
-	lw t0, screen
-	lw t1, black_color
-	lw t2, total_bytes
-
-	add t3, t0, t2
-	mv t4, t0
-
-clear_loop:
-    bge t4, t3, clear_done
-    sw t1, 0(t4)
-    addi t4, t4, 4
-    j clear_loop
-
-clear_done:
-
-	lw a0, screen
-	lw a1, border_color
-	call draw_border
-
 	lw s0, screen
 	lw s1, snake_color
 	lw s4, snake_head_color
 	lw s2, head_x
 	lw s3, head_y
 
+	call start_screen
+
+	call difficulty_select
+	
+	call clear_screen
+	
+	lw a0, screen
+	lw a1, border_color
+	call draw_border
+
+	call draw_obstacles
+	
 # --- draw full starting snake ---
 	la t5, snake        # array base
 	li t6, 0            # i = 0
@@ -86,13 +78,8 @@ store_seg:
     j init_loop
 
 init_done:
+
 	call spawn_apple
-
-	la a0, difficulty_str
-	li a7, 4
-	ecall
-
-	call difficulty_select
 
 	call main_loop
 	
@@ -105,7 +92,8 @@ spawn_apple:
     sw   ra, 0(sp) 
 spawn_try:
 
-    li a7, 42        # random syscall
+#	random syscall for x y
+    li a7, 42
 	li a0, 2
     li a1, 28
     ecall
@@ -117,19 +105,18 @@ spawn_try:
     ecall
     mv t1, a0
 
-# -------- GET SCREEN ADDRESS --------
     mv a1, t0
     mv a2, t1
     call get_address
 
     add t2, s0, a0
 
-# -------- CHECK IF BLACK --------
+#	check square paintable
     lw t3, 0(t2)
     lw t4, black_color
     bne t3, t4, spawn_try
 
-# -------- PAINT APPLE --------
+#	paint apple
     lw t4, apple_color
     sw t4, 0(t2)
 
@@ -146,7 +133,7 @@ difficulty_select:
 	lw t0, 4(t0)
 	lw t0, 0(t0)
 
-	la, t2, difficulty_ms
+	la t2, difficulty_ms
 
 	li t1, 49 # '1' ascii
 	li t3, 200
@@ -164,6 +151,7 @@ difficulty_select:
 	j difficulty_select
 
 difficulty_end:
+
 	ret
 
 main_loop:
@@ -220,7 +208,7 @@ update_snake:
 # --- collision checks using COLOR ---
 
 	lw t4, apple_color
-	beq t3, t4, grow_snake     # hit wall
+	beq t3, t4, grow_snake     # ate apple
 
 	lw t4, border_color
 	beq t3, t4, game_over     # hit wall
@@ -245,6 +233,20 @@ grow_snake:
 	la t1, snake_length
 	addi t0, t0, 1
 	sw t0, 0(t1)
+	addi t0, t0, -3 # score = snake_length - 3
+	
+	# print "SCORE: "
+	la a0, score_str
+	li a7, 4          # print string
+	ecall
+	# print score number
+	mv a0, t0
+	li a7, 1
+	ecall
+	# print newline
+	la a0, newline
+	li a7, 4
+	ecall
 	call spawn_apple
 	call shift_snake_array
 
@@ -497,3 +499,731 @@ death_loop_end:
 	ecall
 	
 	ret
+
+clear_screen:
+	# loop to paint entire screen black basically because they arent when the program starts
+	lw t0, screen
+	lw t1, black_color
+	lw t2, total_bytes
+
+	add t3, t0, t2
+	mv t4, t0
+
+clear_loop:
+    bge t4, t3, clear_done
+    sw t1, 0(t4)
+    addi t4, t4, 4
+    j clear_loop
+    
+clear_done:
+	ret
+
+draw_obstacles:
+	
+    addi sp, sp, -16
+    sw ra, 0(sp)
+    
+	lw a0, border_color
+	lw a1, screen
+
+	li a2, 23
+	li a3, 4
+	call draw_at
+	li a2, 24
+	li a3, 4
+	call draw_at
+	li a2, 23
+	li a3, 5
+	call draw_at
+	li a2, 24
+	li a3, 5
+	call draw_at
+	li a2, 1
+	li a3, 8
+	call draw_at
+	li a2, 2
+	li a3, 8
+	call draw_at
+	li a2, 3
+	li a3, 8
+	call draw_at
+	li a2, 4
+	li a3, 8
+	call draw_at
+	li a2, 5
+	li a3, 8
+	call draw_at
+	li a2, 6
+	li a3, 8
+	call draw_at
+	li a2, 7
+	li a3, 8
+	call draw_at
+	li a2, 8
+	li a3, 8
+	call draw_at
+	li a2, 9
+	li a3, 8
+	call draw_at
+	li a2, 10
+	li a3, 8
+	call draw_at
+	li a2, 11
+	li a3, 8
+	call draw_at
+	li a2, 12
+	li a3, 8
+	call draw_at
+	li a2, 13
+	li a3, 8
+	call draw_at
+	li a2, 14
+	li a3, 8
+	call draw_at
+	li a2, 17
+	li a3, 12
+	call draw_at
+	li a2, 18
+	li a3, 12
+	call draw_at
+	li a2, 19
+	li a3, 12
+	call draw_at
+	li a2, 20
+	li a3, 12
+	call draw_at
+	li a2, 21
+	li a3, 12
+	call draw_at
+	li a2, 22
+	li a3, 12
+	call draw_at
+	li a2, 23
+	li a3, 12
+	call draw_at
+	li a2, 24
+	li a3, 12
+	call draw_at
+	li a2, 25
+	li a3, 12
+	call draw_at
+	li a2, 26
+	li a3, 12
+	call draw_at
+	li a2, 27
+	li a3, 12
+	call draw_at
+	li a2, 28
+	li a3, 12
+	call draw_at
+	li a2, 29
+	li a3, 12
+	call draw_at
+	li a2, 30
+	li a3, 12
+	call draw_at
+	li a2, 1
+	li a3, 16
+	call draw_at
+	li a2, 2
+	li a3, 16
+	call draw_at
+	li a2, 3
+	li a3, 16
+	call draw_at
+	li a2, 4
+	li a3, 16
+	call draw_at
+	li a2, 5
+	li a3, 16
+	call draw_at
+	li a2, 6
+	li a3, 16
+	call draw_at
+	li a2, 7
+	li a3, 16
+	call draw_at
+	li a2, 8
+	li a3, 16
+	call draw_at
+	li a2, 9
+	li a3, 16
+	call draw_at
+	li a2, 10
+	li a3, 16
+	call draw_at
+	li a2, 11
+	li a3, 16
+	call draw_at
+	li a2, 12
+	li a3, 16
+	call draw_at
+	li a2, 13
+	li a3, 16
+	call draw_at
+	li a2, 14
+	li a3, 16
+	call draw_at
+	li a2, 17
+	li a3, 20
+	call draw_at
+	li a2, 18
+	li a3, 20
+	call draw_at
+	li a2, 19
+	li a3, 20
+	call draw_at
+	li a2, 20
+	li a3, 20
+	call draw_at
+	li a2, 21
+	li a3, 20
+	call draw_at
+	li a2, 22
+	li a3, 20
+	call draw_at
+	li a2, 23
+	li a3, 20
+	call draw_at
+	li a2, 24
+	li a3, 20
+	call draw_at
+	li a2, 25
+	li a3, 20
+	call draw_at
+	li a2, 26
+	li a3, 20
+	call draw_at
+	li a2, 27
+	li a3, 20
+	call draw_at
+	li a2, 28
+	li a3, 20
+	call draw_at
+	li a2, 29
+	li a3, 20
+	call draw_at
+	li a2, 30
+	li a3, 20
+	call draw_at
+	li a2, 8
+	li a3, 23
+	call draw_at
+	li a2, 9
+	li a3, 23
+	call draw_at
+	li a2, 8
+	li a3, 24
+	call draw_at
+	li a2, 9
+	li a3, 24
+	call draw_at
+	li a2, 22
+	li a3, 26
+	call draw_at
+	li a2, 23
+	li a3, 26
+	call draw_at
+	li a2, 22
+	li a3, 27
+	call draw_at
+	li a2, 23
+	li a3, 27
+	call draw_at
+	
+    lw ra, 0(sp)
+    addi sp, sp, 16
+	ret
+
+start_screen:
+
+    addi sp, sp, -16
+    sw ra, 0(sp)
+    
+	li a0, 0x00FF40DD #pink
+	lw a1, screen
+
+	li a2, 9
+	li a3, 8
+	call draw_at
+	li a2, 11
+	li a3, 8
+	call draw_at
+	li a2, 12
+	li a3, 8
+	call draw_at
+	li a2, 13
+	li a3, 8
+	call draw_at
+	li a2, 15
+	li a3, 8
+	call draw_at
+	li a2, 16
+	li a3, 8
+	call draw_at
+	li a2, 17
+	li a3, 8
+	call draw_at
+	li a2, 19
+	li a3, 8
+	call draw_at
+	li a2, 20
+	li a3, 8
+	call draw_at
+	li a2, 21
+	li a3, 8
+	call draw_at
+	li a2, 9
+	li a3, 9
+	call draw_at
+	li a2, 12
+	li a3, 9
+	call draw_at
+	li a2, 15
+	li a3, 9
+	call draw_at
+	li a2, 19
+	li a3, 9
+	call draw_at
+	li a2, 23
+	li a3, 9
+	call draw_at
+	li a2, 9
+	li a3, 10
+	call draw_at
+	li a2, 12
+	li a3, 10
+	call draw_at
+	li a2, 15
+	li a3, 10
+	call draw_at
+	li a2, 16
+	li a3, 10
+	call draw_at
+	li a2, 19
+	li a3, 10
+	call draw_at
+	li a2, 20
+	li a3, 10
+	call draw_at
+	li a2, 7
+	li a3, 11
+	call draw_at
+	li a2, 8
+	li a3, 11
+	call draw_at
+	li a2, 9
+	li a3, 11
+	call draw_at
+	li a2, 12
+	li a3, 11
+	call draw_at
+	li a2, 15
+	li a3, 11
+	call draw_at
+	li a2, 19
+	li a3, 11
+	call draw_at
+	li a2, 7
+	li a3, 12
+	call draw_at
+	li a2, 9
+	li a3, 12
+	call draw_at
+	li a2, 12
+	li a3, 12
+	call draw_at
+	li a2, 15
+	li a3, 12
+	call draw_at
+	li a2, 19
+	li a3, 12
+	call draw_at
+	li a2, 23
+	li a3, 12
+	call draw_at
+	li a2, 7
+	li a3, 13
+	call draw_at
+	li a2, 8
+	li a3, 13
+	call draw_at
+	li a2, 9
+	li a3, 13
+	call draw_at
+	li a2, 11
+	li a3, 13
+	call draw_at
+	li a2, 12
+	li a3, 13
+	call draw_at
+	li a2, 13
+	li a3, 13
+	call draw_at
+	li a2, 15
+	li a3, 13
+	call draw_at
+	li a2, 19
+	li a3, 13
+	call draw_at
+	li a2, 4
+	li a3, 16
+	call draw_at
+	li a2, 5
+	li a3, 16
+	call draw_at
+	li a2, 6
+	li a3, 16
+	call draw_at
+	li a2, 7
+	li a3, 16
+	call draw_at
+	li a2, 8
+	li a3, 16
+	call draw_at
+	li a2, 9
+	li a3, 16
+	call draw_at
+	li a2, 10
+	li a3, 16
+	call draw_at
+	li a2, 13
+	li a3, 16
+	call draw_at
+	li a2, 14
+	li a3, 16
+	call draw_at
+	li a2, 15
+	li a3, 16
+	call draw_at
+	li a2, 16
+	li a3, 16
+	call draw_at
+	li a2, 17
+	li a3, 16
+	call draw_at
+	li a2, 18
+	li a3, 16
+	call draw_at
+	li a2, 19
+	li a3, 16
+	call draw_at
+	li a2, 22
+	li a3, 16
+	call draw_at
+	li a2, 23
+	li a3, 16
+	call draw_at
+	li a2, 24
+	li a3, 16
+	call draw_at
+	li a2, 25
+	li a3, 16
+	call draw_at
+	li a2, 26
+	li a3, 16
+	call draw_at
+	li a2, 27
+	li a3, 16
+	call draw_at
+	li a2, 28
+	li a3, 16
+	call draw_at
+	li a2, 4
+	li a3, 17
+	call draw_at
+	li a2, 10
+	li a3, 17
+	call draw_at
+	li a2, 13
+	li a3, 17
+	call draw_at
+	li a2, 19
+	li a3, 17
+	call draw_at
+	li a2, 22
+	li a3, 17
+	call draw_at
+	li a2, 28
+	li a3, 17
+	call draw_at
+	li a2, 4
+	li a3, 18
+	call draw_at
+	li a2, 7
+	li a3, 18
+	call draw_at
+	li a2, 10
+	li a3, 18
+	call draw_at
+	li a2, 13
+	li a3, 18
+	call draw_at
+	li a2, 15
+	li a3, 18
+	call draw_at
+	li a2, 16
+	li a3, 18
+	call draw_at
+	li a2, 17
+	li a3, 18
+	call draw_at
+	li a2, 19
+	li a3, 18
+	call draw_at
+	li a2, 22
+	li a3, 18
+	call draw_at
+	li a2, 24
+	li a3, 18
+	call draw_at
+	li a2, 25
+	li a3, 18
+	call draw_at
+	li a2, 26
+	li a3, 18
+	call draw_at
+	li a2, 28
+	li a3, 18
+	call draw_at
+	li a2, 4
+	li a3, 19
+	call draw_at
+	li a2, 6
+	li a3, 19
+	call draw_at
+	li a2, 7
+	li a3, 19
+	call draw_at
+	li a2, 10
+	li a3, 19
+	call draw_at
+	li a2, 13
+	li a3, 19
+	call draw_at
+	li a2, 17
+	li a3, 19
+	call draw_at
+	li a2, 19
+	li a3, 19
+	call draw_at
+	li a2, 22
+	li a3, 19
+	call draw_at
+	li a2, 26
+	li a3, 19
+	call draw_at
+	li a2, 28
+	li a3, 19
+	call draw_at
+	li a2, 4
+	li a3, 20
+	call draw_at
+	li a2, 7
+	li a3, 20
+	call draw_at
+	li a2, 10
+	li a3, 20
+	call draw_at
+	li a2, 13
+	li a3, 20
+	call draw_at
+	li a2, 16
+	li a3, 20
+	call draw_at
+	li a2, 19
+	li a3, 20
+	call draw_at
+	li a2, 22
+	li a3, 20
+	call draw_at
+	li a2, 26
+	li a3, 20
+	call draw_at
+	li a2, 28
+	li a3, 20
+	call draw_at
+	li a2, 4
+	li a3, 21
+	call draw_at
+	li a2, 7
+	li a3, 21
+	call draw_at
+	li a2, 10
+	li a3, 21
+	call draw_at
+	li a2, 13
+	li a3, 21
+	call draw_at
+	li a2, 15
+	li a3, 21
+	call draw_at
+	li a2, 19
+	li a3, 21
+	call draw_at
+	li a2, 22
+	li a3, 21
+	call draw_at
+	li a2, 25
+	li a3, 21
+	call draw_at
+	li a2, 28
+	li a3, 21
+	call draw_at
+	li a2, 4
+	li a3, 22
+	call draw_at
+	li a2, 7
+	li a3, 22
+	call draw_at
+	li a2, 10
+	li a3, 22
+	call draw_at
+	li a2, 13
+	li a3, 22
+	call draw_at
+	li a2, 15
+	li a3, 22
+	call draw_at
+	li a2, 19
+	li a3, 22
+	call draw_at
+	li a2, 22
+	li a3, 22
+	call draw_at
+	li a2, 26
+	li a3, 22
+	call draw_at
+	li a2, 28
+	li a3, 22
+	call draw_at
+	li a2, 4
+	li a3, 23
+	call draw_at
+	li a2, 6
+	li a3, 23
+	call draw_at
+	li a2, 7
+	li a3, 23
+	call draw_at
+	li a2, 8
+	li a3, 23
+	call draw_at
+	li a2, 10
+	li a3, 23
+	call draw_at
+	li a2, 13
+	li a3, 23
+	call draw_at
+	li a2, 15
+	li a3, 23
+	call draw_at
+	li a2, 16
+	li a3, 23
+	call draw_at
+	li a2, 17
+	li a3, 23
+	call draw_at
+	li a2, 19
+	li a3, 23
+	call draw_at
+	li a2, 22
+	li a3, 23
+	call draw_at
+	li a2, 24
+	li a3, 23
+	call draw_at
+	li a2, 25
+	li a3, 23
+	call draw_at
+	li a2, 26
+	li a3, 23
+	call draw_at
+	li a2, 28
+	li a3, 23
+	call draw_at
+	li a2, 4
+	li a3, 24
+	call draw_at
+	li a2, 10
+	li a3, 24
+	call draw_at
+	li a2, 13
+	li a3, 24
+	call draw_at
+	li a2, 19
+	li a3, 24
+	call draw_at
+	li a2, 22
+	li a3, 24
+	call draw_at
+	li a2, 28
+	li a3, 24
+	call draw_at
+	li a2, 4
+	li a3, 25
+	call draw_at
+	li a2, 5
+	li a3, 25
+	call draw_at
+	li a2, 6
+	li a3, 25
+	call draw_at
+	li a2, 7
+	li a3, 25
+	call draw_at
+	li a2, 8
+	li a3, 25
+	call draw_at
+	li a2, 9
+	li a3, 25
+	call draw_at
+	li a2, 10
+	li a3, 25
+	call draw_at
+	li a2, 13
+	li a3, 25
+	call draw_at
+	li a2, 14
+	li a3, 25
+	call draw_at
+	li a2, 15
+	li a3, 25
+	call draw_at
+	li a2, 16
+	li a3, 25
+	call draw_at
+	li a2, 17
+	li a3, 25
+	call draw_at
+	li a2, 18
+	li a3, 25
+	call draw_at
+	li a2, 19
+	li a3, 25
+	call draw_at
+	li a2, 22
+	li a3, 25
+	call draw_at
+	li a2, 23
+	li a3, 25
+	call draw_at
+	li a2, 24
+	li a3, 25
+	call draw_at
+	li a2, 25
+	li a3, 25
+	call draw_at
+	li a2, 26
+	li a3, 25
+	call draw_at
+	li a2, 27
+	li a3, 25
+	call draw_at
+	li a2, 28
+	li a3, 25
+	call draw_at
+	
+    lw ra, 0(sp)
+    addi sp, sp, 16
+    ret
