@@ -247,6 +247,24 @@ grow_snake:
 	la a0, newline
 	li a7, 4
 	ecall
+
+	# increase difficulty every 5 apples eaten
+	# t0 contains score (apples eaten) check by doing t0 % 5
+	li a0, 5
+	rem a0, t0, a0
+	bnez a0, skip_increase_diff
+
+	#else
+	lw t0, difficulty_ms
+	la t1, difficulty_ms
+	addi t0, t0, -25	# t0 -> new_difficulty = old diff - 25ms
+	li a0, 49
+
+	#check less than 49
+	bge a0, t0, skip_increase_diff
+	sw t0, 0(t1)
+
+skip_increase_diff:
 	call spawn_apple
 	call shift_snake_array
 
