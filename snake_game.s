@@ -1,14 +1,21 @@
 .data
-	snake:			.space 1024	# Array size 10 words basically
+	snake:			.space 1024
+	snake_b:		.space 1024
+	snake_length_b:	.space 1024
 	snake_length:	.word 3		# snake length including head (makes life easier). starts at 2
-	head_x:			.word 16	# x, y coords for head
-	head_y:			.word 16
+	head_x:			.word 3	# x, y coords for head
+	head_y:			.word 3
 	vel_x:			.word 1
 	vel_y:			.word 0
+	head_x_b:			.word 27
+	head_y_b:			.word 27
+	vel_x_b:			.word -1
+	vel_y_b:			.word 0
 
 	black_color: 	.word 0x00000000
 	border_color:	.word 0x000000FF
-	snake_color:	.word 0x0000FF00
+	snake_color:	.word 0x0000FF00 #pure green
+	snake_color_b:	.word 0x00006000 #dark green
 	snake_head_color:	.word 0x00FCBC3D
 	apple_color:	.word 0x00FF0000
 	text_color:		.word 0x00BBBBBB
@@ -35,6 +42,16 @@ main:
 	lw s4, snake_head_color
 	lw s2, head_x
 	lw s3, head_y
+
+	call mode_select_screen
+
+	call mode_select
+
+	call clear_screen
+	
+    la t0, input
+    lw t1, 4(t0)     # load pointer to key data
+    sw zero, 0(t1)   # clear the key register
 
 	call start_screen
 
@@ -125,6 +142,27 @@ spawn_try:
     lw ra, 0(sp)
     addi sp, sp, 12
     ret
+
+mode_select:
+	li a0, 100 # 100 ms delay
+	li a7, 32
+	ecall
+
+    la t0, input	# check keypress
+	lw t0, 4(t0)
+	lw t0, 0(t0)
+
+	li t1, 49 # '1' ascii
+	beq t0, t1, chose_one_player
+	li t1, 50 # '2' ascii
+	beq t0, t1, chose_two_player
+
+	j difficulty_select
+
+chose_one_player:
+	ret
+chose_two_player:
+	j two_player_mode
 
 difficulty_select:
 	li a0, 100 # 100 ms delay
@@ -539,6 +577,19 @@ clear_loop:
     
 clear_done:
 	ret
+	
+two_player_mode:
+
+	li a7, 10
+	ecall
+
+###############################################################################
+#                                                                             #
+#                                                                             #
+#                      just onscreen drawing, stop here                       #
+#                                                                             #
+#                                                                             #
+###############################################################################
 
 draw_obstacles:
 	
@@ -756,6 +807,300 @@ draw_obstacles:
     lw ra, 0(sp)
     addi sp, sp, 16
 	ret
+
+mode_select_screen:
+    addi sp, sp, -16
+    sw ra, 0(sp)
+    
+	li a0, 0x00FF40DD #pink
+	lw a1, screen
+
+	li a2, 7
+	li a3, 6
+	call draw_at
+	li a2, 9
+	li a3, 6
+	call draw_at
+	li a2, 11
+	li a3, 6
+	call draw_at
+	li a2, 12
+	li a3, 6
+	call draw_at
+	li a2, 13
+	li a3, 6
+	call draw_at
+	li a2, 15
+	li a3, 6
+	call draw_at
+	li a2, 16
+	li a3, 6
+	call draw_at
+	li a2, 17
+	li a3, 6
+	call draw_at
+	li a2, 19
+	li a3, 6
+	call draw_at
+	li a2, 20
+	li a3, 6
+	call draw_at
+	li a2, 21
+	li a3, 6
+	call draw_at
+	li a2, 7
+	li a3, 7
+	call draw_at
+	li a2, 8
+	li a3, 7
+	call draw_at
+	li a2, 9
+	li a3, 7
+	call draw_at
+	li a2, 11
+	li a3, 7
+	call draw_at
+	li a2, 13
+	li a3, 7
+	call draw_at
+	li a2, 15
+	li a3, 7
+	call draw_at
+	li a2, 17
+	li a3, 7
+	call draw_at
+	li a2, 19
+	li a3, 7
+	call draw_at
+	li a2, 23
+	li a3, 7
+	call draw_at
+	li a2, 7
+	li a3, 8
+	call draw_at
+	li a2, 9
+	li a3, 8
+	call draw_at
+	li a2, 11
+	li a3, 8
+	call draw_at
+	li a2, 13
+	li a3, 8
+	call draw_at
+	li a2, 15
+	li a3, 8
+	call draw_at
+	li a2, 17
+	li a3, 8
+	call draw_at
+	li a2, 19
+	li a3, 8
+	call draw_at
+	li a2, 20
+	li a3, 8
+	call draw_at
+	li a2, 7
+	li a3, 9
+	call draw_at
+	li a2, 9
+	li a3, 9
+	call draw_at
+	li a2, 11
+	li a3, 9
+	call draw_at
+	li a2, 13
+	li a3, 9
+	call draw_at
+	li a2, 15
+	li a3, 9
+	call draw_at
+	li a2, 17
+	li a3, 9
+	call draw_at
+	li a2, 19
+	li a3, 9
+	call draw_at
+	li a2, 7
+	li a3, 10
+	call draw_at
+	li a2, 9
+	li a3, 10
+	call draw_at
+	li a2, 11
+	li a3, 10
+	call draw_at
+	li a2, 13
+	li a3, 10
+	call draw_at
+	li a2, 15
+	li a3, 10
+	call draw_at
+	li a2, 17
+	li a3, 10
+	call draw_at
+	li a2, 19
+	li a3, 10
+	call draw_at
+	li a2, 23
+	li a3, 10
+	call draw_at
+	li a2, 7
+	li a3, 11
+	call draw_at
+	li a2, 9
+	li a3, 11
+	call draw_at
+	li a2, 11
+	li a3, 11
+	call draw_at
+	li a2, 12
+	li a3, 11
+	call draw_at
+	li a2, 13
+	li a3, 11
+	call draw_at
+	li a2, 15
+	li a3, 11
+	call draw_at
+	li a2, 16
+	li a3, 11
+	call draw_at
+	li a2, 19
+	li a3, 11
+	call draw_at
+	li a2, 20
+	li a3, 11
+	call draw_at
+	li a2, 21
+	li a3, 11
+	call draw_at
+	li a2, 7
+	li a3, 16
+	call draw_at
+	li a2, 10
+	li a3, 16
+	call draw_at
+	li a2, 11
+	li a3, 16
+	call draw_at
+	li a2, 12
+	li a3, 16
+	call draw_at
+	li a2, 16
+	li a3, 16
+	call draw_at
+	li a2, 17
+	li a3, 16
+	call draw_at
+	li a2, 18
+	li a3, 16
+	call draw_at
+	li a2, 21
+	li a3, 16
+	call draw_at
+	li a2, 22
+	li a3, 16
+	call draw_at
+	li a2, 23
+	li a3, 16
+	call draw_at
+	li a2, 6
+	li a3, 17
+	call draw_at
+	li a2, 7
+	li a3, 17
+	call draw_at
+	li a2, 10
+	li a3, 17
+	call draw_at
+	li a2, 12
+	li a3, 17
+	call draw_at
+	li a2, 18
+	li a3, 17
+	call draw_at
+	li a2, 21
+	li a3, 17
+	call draw_at
+	li a2, 23
+	li a3, 17
+	call draw_at
+	li a2, 7
+	li a3, 18
+	call draw_at
+	li a2, 10
+	li a3, 18
+	call draw_at
+	li a2, 11
+	li a3, 18
+	call draw_at
+	li a2, 12
+	li a3, 18
+	call draw_at
+	li a2, 17
+	li a3, 18
+	call draw_at
+	li a2, 21
+	li a3, 18
+	call draw_at
+	li a2, 22
+	li a3, 18
+	call draw_at
+	li a2, 23
+	li a3, 18
+	call draw_at
+	li a2, 7
+	li a3, 19
+	call draw_at
+	li a2, 10
+	li a3, 19
+	call draw_at
+	li a2, 16
+	li a3, 19
+	call draw_at
+	li a2, 21
+	li a3, 19
+	call draw_at
+	li a2, 7
+	li a3, 20
+	call draw_at
+	li a2, 10
+	li a3, 20
+	call draw_at
+	li a2, 16
+	li a3, 20
+	call draw_at
+	li a2, 21
+	li a3, 20
+	call draw_at
+	li a2, 6
+	li a3, 21
+	call draw_at
+	li a2, 7
+	li a3, 21
+	call draw_at
+	li a2, 8
+	li a3, 21
+	call draw_at
+	li a2, 10
+	li a3, 21
+	call draw_at
+	li a2, 16
+	li a3, 21
+	call draw_at
+	li a2, 17
+	li a3, 21
+	call draw_at
+	li a2, 18
+	li a3, 21
+	call draw_at
+	li a2, 21
+	li a3, 21
+	call draw_at
+
+    lw ra, 0(sp)
+    addi sp, sp, 16
+    ret
 
 start_screen:
 
