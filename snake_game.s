@@ -1,21 +1,10 @@
-# SNAKE GAME (Group 2)
-# Challenge 6
-# 
-# s registers: global constant values
-# t registers: temp variable registers
-# 
-# 2WIDTH x HEIGHT = 256 x 256
-# Pixel size: 8 
-#
 .data
-	snake:			.space 40	# Array size 10 words basically
-	snake_length:	.word 5		# snake length including head (makes life easier). starts at 2
+	snake:			.space 1024	# Array size 10 words basically
+	snake_length:	.word 3		# snake length including head (makes life easier). starts at 2
 	head_x:			.word 16	# x, y coords for head
 	head_y:			.word 16
 	vel_x:			.word 1
 	vel_y:			.word 0
-	apples:			.space 80
-	max_apples:		.word 1
 
 	black_color: 	.word 0x00000000
 	border_color:	.word 0x000000FF
@@ -23,6 +12,12 @@
 	snake_head_color:	.word 0x00FCBC3D
 	apple_color:	.word 0x00FF0000
 	text_color:		.word 0x00BBBBBB
+	
+	
+	
+	#challenge A
+	score: .word 0
+	score_msg: .asciz "score: "
 	
 	screen:			.word 0x10040000	# screen address
 	input:			.word 0xFFFF0000
@@ -34,105 +29,80 @@
 	difficulty_ms:	.word 0
 
 	game_over_str:	.asciz "game over\n"
-	difficulty_str:	.asciz "please select difficulty 1 2 or 3 in MMIO keyboard input\n'"
+	difficulty_str:	.asciz "please select difficulty 1 2 or 3 in MMIO keyboard input\n"
 
 .text
 .globl main
 main:
+	# loop to paint entire screen black basically because they arent when the program starts
+	lw t0, screen
+	lw t1, black_color
+	lw t2, total_bytes
+
+	add t3, t0, t2
+	mv t4, t0
+
+clear_loop:
+    bge t4, t3, clear_done
+    sw t1, 0(t4)
+    addi t4, t4, 4
+    j clear_loop
+
+clear_done:
+
 	lw a0, screen
 	lw a1, border_color
 	call draw_border
 
-	# Load head coords and screen ADRESSES
 	lw s0, screen
 	lw s1, snake_color
 	lw s4, snake_head_color
-
 	lw s2, head_x
 	lw s3, head_y
-	lw s5, apples
-	
-	mv a1, s2 # Args for offset calc (head_x = a1, head_y = a2)
-	mv a2, s3
-	
-	# Calculate offset, stored in a0
-	call head_offset_calc
-	
-	# Add the offset to the "pointer", store in t0
-	add t0, s0, a0
-	
-	# Change pixel color
-	sw s4, 0(t0)
-	
-	# Store the "coordinate" in the array
-	li a0, 0	# Store in 0 offset of snake array, first position
-	mv a1, t0	# Argument for address to store
-	call store_address_snake
 
-	# same steps as before but for "tail" of the snake	
-	li t0, -1
-	mv a1, s2
-	mv a2, s3
-	
-	add a1, a1, t0	# for tail subtract 1 to x coord
-	call head_offset_calc
-	add t0, s0, a0
-	sw s1, 0(t0)
-	
-	li a0, 1	# second index of array
-	mv a1, t0
-	call store_address_snake
-	
-	# repeat for second block of tail
-	li t0, -2
-	mv a1, s2
-	mv a2, s3
-	
-	add a1, a1, t0	# for tail subtract 1 to x coord
-	call head_offset_calc
-	add t0, s0, a0
-	sw s1, 0(t0)
-	
-	li a0, 2	# second index of array
-	mv a1, t0
-	call store_address_snake
-	
-	# repeat for third block of tail
-	li t0, -3
-	mv a1, s2
-	mv a2, s3
-	
-	add a1, a1, t0
-	call head_offset_calc
-	add t0, s0, a0
-	sw s1, 0(t0)
-	
-	li a0, 3	# third index of array
-	mv a1, t0
-	call store_address_snake
+# --- draw full starting snake ---
+	la t5, snake        # array base
+	li t6, 0            # i = 0
+	li t4, 3
 
-	# repeat for fourth block of tail
-	li t0, -4
-	mv a1, s2
-	mv a2, s3
+init_loop:
+    bge t6, t4, init_done
+
+    sub t0, zero, t6        # t0 = -i
+    add a1, s2, t0          # x = head_x - i
+    mv  a2, s3              # y = head_y
+
+    call get_address
+    add t1, s0, a0          # absolute pixel addr
+
+    beqz t6, draw_head
+
+    sw s1, 0(t1)            # body
+    j store_seg
+
+draw_head:
+    sw s4, 0(t1)
+
+store_seg:
+    slli t2, t6, 2
+    add t3, t5, t2
+    sw t1, 0(t3)
+
+    addi t6, t6, 1
+    j init_loop
+
+init_done:
+
+	la t0, score 
+	sw zero, 0(t0) 
+	call display_score 
 	
-	add a1, a1, t0
-	call head_offset_calc
-	add t0, s0, a0
-	sw s1, 0(t0)
-	
-	li a0, 4	# fourth index of array
-	mv a1, t0
-	call store_address_snake
+	call spawn_apple
 
 	la a0, difficulty_str
 	li a7, 4
 	ecall
 
-	call spawn_food
-	li a7, 10
-	ecall
-	
 	call difficulty_select
 
 	call main_loop
@@ -140,65 +110,74 @@ main:
 	# End program	
 	li a7, 10
 	ecall
-	
-get_random_number:
-	li a0 0
-	li a1 29
-	li a7, 42
-	ecall
-	addi a0, a0, 1
-	ret
-	
-spawn_food:
-	addi sp, sp, -16
-	sw ra 0(sp)
-	
-	# Direccion x
-	call get_random_number
-	
-	li a1, 0
-	li a2, 0
-	call set_elem
-	
-	# Direccion y
-	call get_random_number
-	
-	li a1, 0
-	li a2, 1
-	call set_elem
-	
-	li a1, 0
-	li a2, 0
-	call get_elem
-	mv t0, a0
-	
-	li a1, 0
-	li a2, 1
-	call get_elem
-	mv t1, a0
 
-	lw a0, apple_color
-	mv a1, s0
-	lw a2, 0(t0)
-	lw a3, 0(t1)
-	call draw_at
+display_score: 
+	addi sp, sp, -16 
+	sw ra, 12(sp) 
+	la a0, score_msg 
+	li a7, 4 
+	ecall 
+	
+	lw a0, score 
+	li a7, 1
+	ecall 
+	lw ra, 12(sp)
+	addi sp, sp , 16 
+	ret 
 
-set_elem:
-    slli t1, a1, 3         # fila*8
-    slli t2, a2, 2         # columna*4
-    add  t1, t1, t2        # offset = fila*8 + columna*4
-    add  t1, s5, t1        # dirección absoluta
-    sw   a0, 0(t1)	   # Guardamos a0 en la posiciones calculada de fila a1, columna a2
+increase_score: #adding 1 points when apple 
+	addi sp, sp , -16
+	sw ra, 12(sp)
+	
+	la t0, score 
+	lw t1, 0(t0) 
+	addi t1, t1, 1 
+	sw t1, 0(t0) 
+	
+	call display_score  #update score
+	
+	lw ra, 12(sp) 
+	addi sp, sp , 16 
+	ret 
+	
+	
+spawn_apple:
+    addi sp, sp, -16  #for alignment 
+    sw   ra, 0(sp) 
+spawn_try:
+
+ 	li a7, 42        # random syscall
+	li a0, 2
+    li a1, 28
+    ecall
+    mv t0, a0
+
+    li a7, 42
+	li a0, 2
+    li a1, 28
+    ecall
+    mv t1, a0
+  
+
+# -------- GET SCREEN ADDRESS --------
+    mv a1, t0
+    mv a2, t1
+    call get_address
+
+    add t2, s0, a0
+
+# -------- CHECK IF BLACK --------
+    lw t3, 0(t2)
+    lw t4, black_color
+    bne t3, t4, spawn_try
+
+# -------- PAINT APPLE --------
+    lw t4, apple_color
+    sw t4, 0(t2)
+
+    lw ra, 0(sp)
+    addi sp, sp, 16
     ret
-	
-get_elem:
-    slli t1, a1, 3
-    slli t2, a2, 2
-    add  t1, t1, t2
-    add  t1, s5, t1
-    lw   a0, 0(t1)
-    ret
-
 
 difficulty_select:
 	li a0, 100 # 100 ms delay
@@ -209,7 +188,7 @@ difficulty_select:
 	lw t0, 4(t0)
 	lw t0, 0(t0)
 
-	la, t2, difficulty_ms
+	la t2, difficulty_ms 
 
 	li t1, 49 # '1' ascii
 	li t3, 200
@@ -255,13 +234,8 @@ update_snake:
 	slli t1, t1, 2
 	add t1, t0, t1
 
-	# paint tail end black
-	lw t2, 0(t1)
-	lw t0, black_color
-	sw t0, 0(t2)
-
-	#shift snake array
-	call shift_snake_array
+	# save tail end adress
+	mv s5, t1
 
 	# update head pos
 	lw t0, head_x
@@ -270,42 +244,67 @@ update_snake:
 	lw t3, vel_y
 	add t0, t0, t2
 	add t1, t1, t3
+
+	mv s2, t0 
+	mv s3, t1 
 	
-	# check wall collision
-    li t4, 1
-    blt t0, t4, game_over      # if head_x < 0
-    blt t1, t4, game_over      # if head_y < 0
-    li t5, 30
-    bgt t0, t5, game_over      # if head_x > 31
-    bgt t1, t5, game_over      # if head_y > 31
+	#wall collision 
+	li t4, 1 
+	blt t0, t4, game_over  #x <1 
+	blt t1, t4, game_over #y<1
+	li t5, 30
+	bgt t0, t5, game_over  #x>30
+	bgt t1, t5, game_over #y>30
 	
-	# check body collision
-	mv a1, t0				# head_x
-	mv a2, t1				# head_y
-	call head_offset_calc
+	
+# calculate next head screen address
+	mv a1, t0
+	mv a2, t1
+	call get_address
 
 	lw t2, screen
-	add t2, t2, a0
+	add t2, t2, a0        # t2 = next head pixel address
 
-	la t3, snake
-	lw t5, snake_length
-	li t5, 0				# iterator
+# load pixel color at next position
+	lw t3, 0(t2)
 
-body_collision_loop:		#iterate array to check for collision
-	bge t5, t4, body_collision_done
+# --- collision checks using COLOR ---
 
-	slli t6, t5, 2
-	add t6, t6, t3
-	lw t6, 0(t6)
+	lw t4, apple_color
+	beq t3, t4, grow_snake     # hit wall
 
-	beq t6, t2, game_over
+	lw t4, border_color
+	beq t3, t4, game_over     # hit wall
 
-	addi t5, t5, 1
-	j body_collision_loop
+	lw t4, snake_color
+	beq t3, t4, game_over     # hit body
 
-body_collision_done:
+	lw t4, snake_head_color
+	beq t3, t4, game_over     # hit itself
+
+	# paint tail end black
+	lw t2, 0(s5)
+	lw t0, black_color
+	sw t0, 0(t2)
+
+	#shift snake array
+	call shift_snake_array
+	j dont_grow
+
+grow_snake:
+	lw t0, snake_length
+	la t1, snake_length
+	addi t0, t0, 1
+	sw t0, 0(t1)
+	call spawn_apple
+	call shift_snake_array
+
+dont_grow:
+# body_collision_done:
 	
 	# store new head coordinates
+	mv t0, s2
+	mv t1, s3
 	la t2, head_x
 	la t3, head_y
 	sw t0, 0(t2)
@@ -314,7 +313,7 @@ body_collision_done:
     # new head address calculation
     mv a1, t0				# a1 = new head_x
     mv a2, t1				# a2 = new head_y
-    call head_offset_calc	# returns offset in a0
+    call get_address	# returns offset in a0
 
     lw t3, screen			# screen base
     add t4, t3, a0			# absolute screen address
@@ -483,7 +482,7 @@ db_end:
 # a1 -> head_x coord
 # a2 -> head_y coord
 # ret -> offset
-head_offset_calc:
+get_address:
 	slli a0, a2, 5	# head_y x 32
 	add a0, a0, a1	# add head_x
 	slli a0, a0, 2	# multiply by 4
@@ -519,6 +518,15 @@ game_over:
 	la a0, game_over_str
 	li a7, 4
 	ecall
+	
+	#final score 
+	lw a0, score_msg 
+	li a7, 4 
+	ecall 
+	
+	lw a0, score 
+	li a7, 1 
+	ecall 
 	
 	call death_anim
 	
