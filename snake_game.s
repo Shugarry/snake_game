@@ -35,6 +35,566 @@
 
 	p1_wins_str:    .asciz "PLAYER ONE WINS\n"
 	p2_wins_str:    .asciz "PLAYER TWO WINS\n"
+
+melody:
+	.byte  40,  33,   0
+
+	.byte 0xFE,  33,   0
+	.byte  47,  33,   0
+
+	.byte 0xFE,  33,   0
+	.byte  40,  33,   0
+
+	.byte 0xFE,  33,   0
+	.byte  47,  33,   0
+
+	.byte 0xFE,  33,   0
+	.byte  40,  33,   0
+
+	.byte 0xFE,  33,   0
+	.byte  47,  33,   0
+
+	.byte 0xFE,  33,   0
+	.byte  40,  33,   0
+
+	.byte 0xFE,  33,   0
+	.byte  47,  33,   0
+
+	.byte 0xFE,  33,   0
+	.byte  76,  17,   0
+	.byte  64, 133,   0
+	.byte  59, 133,   0
+	.byte  55, 133,   0
+	.byte  40,  33,   0
+
+	.byte 0xFE,  17,   0
+	.byte  78,  17,   0
+
+	.byte 0xFE,  17,   0
+	.byte  79,  17,   0
+	.byte  47,  33,   0
+
+	.byte 0xFE,  17,   0
+	.byte  78,  17,   0
+
+	.byte 0xFE,  17,   0
+	.byte  76,  33,   0
+	.byte  40,  33,   0
+
+	.byte 0xFE,  33,   0
+	.byte  71,  33,   0
+	.byte  47,  33,   0
+
+	.byte 0xFE,  33,   0
+	.byte  64, 133,   0
+	.byte  59, 133,   0
+	.byte  55, 133,   0
+	.byte  40,  33,   0
+
+	.byte 0xFE,  33,   0
+	.byte  47,  33,   0
+
+	.byte 0xFE,  33,   0
+	.byte  40,  33,   0
+
+	.byte 0xFE,  33,   0
+	.byte  76,  33,   0
+	.byte  47,  33,   0
+
+	.byte 0xFE,  33,   0
+	.byte  75,  33,   0
+	.byte  63, 133,   0
+	.byte  59, 133,   0
+	.byte  55, 133,   0
+	.byte  39,  33,   0
+
+	.byte 0xFE,  33,   0
+	.byte  71,  33,   0
+	.byte  47,  33,   0
+
+	.byte 0xFE,  33,   0
+	.byte  71,  33,   0
+	.byte  39,  33,   0
+
+	.byte 0xFE,  33,   0
+	.byte  71,  33,   0
+	.byte  47,  33,   0
+
+	.byte 0xFE,  33,   0
+	.byte  72,  67,   0
+	.byte  63, 133,   0
+	.byte  59, 133,   0
+	.byte  55, 133,   0
+	.byte  39,  33,   0
+
+	.byte 0xFE,  33,   0
+	.byte  47,  33,   0
+
+	.byte 0xFE,  33,   0
+	.byte  71,  67,   0
+	.byte  39,  33,   0
+
+	.byte 0xFE,  33,   0
+	.byte  47,  33,   0
+
+	.byte 0xFE,  33,   0
+	.byte  69,  17,   0
+	.byte  60, 133,   0
+	.byte  57, 133,   0
+	.byte  52, 133,   0
+	.byte  36,  33,   0
+
+	.byte 0xFE,  17,   0
+	.byte  71,  17,   0
+
+	.byte 0xFE,  17,   0
+	.byte  72,  17,   0
+	.byte  45,  33,   0
+
+	.byte 0xFE,  17,   0
+	.byte  71,  17,   0
+
+	.byte 0xFE,  17,   0
+	.byte  69,  33,   0
+	.byte  36,  33,   0
+
+	.byte 0xFE,  33,   0
+	.byte  64,  33,   0
+	.byte  45,  33,   0
+
+	.byte 0xFE,  33,   0
+	.byte  60, 133,   0
+	.byte  57, 133,   0
+	.byte  52, 133,   0
+	.byte  36,  33,   0
+
+	.byte 0xFE,  33,   0
+	.byte  45,  33,   0
+
+	.byte 0xFE,  33,   0
+	.byte  36,  33,   0
+
+	.byte 0xFE,  33,   0
+	.byte  64,  33,   0
+	.byte  45,  33,   0
+
+	.byte 0xFE,  33,   0
+	.byte  65,  67,   0
+	.byte  59, 133,   0
+	.byte  53, 133,   0
+	.byte  50, 133,   0
+	.byte  38,  33,   0
+
+	.byte 0xFE,  33,   0
+	.byte  47,  33,   0
+
+	.byte 0xFE,  33,   0
+	.byte  64,  33,   0
+	.byte  38,  33,   0
+
+	.byte 0xFE,  33,   0
+	.byte  63,  33,   0
+	.byte  47,  33,   0
+
+	.byte 0xFE,  33,   0
+	.byte  64,  33,   0
+	.byte  64, 133,   0
+	.byte  59, 133,   0
+	.byte  56, 133,   0
+	.byte  40,  33,   0
+
+	.byte 0xFE,  33,   0
+	.byte  47,  33,   0
+
+	.byte 0xFE,  33,   0
+	.byte  40,  33,   0
+
+	.byte 0xFE,  33,   0
+	.byte  47,  33,   0
+
+	.byte 0xFE,  33,   0
+	.byte  76,  17,   0
+	.byte  64, 133,   0
+	.byte  59, 133,   0
+	.byte  55, 133,   0
+	.byte  40,  33,   0
+
+	.byte 0xFE,  17,   0
+	.byte  78,  17,   0
+
+	.byte 0xFE,  17,   0
+	.byte  79,  17,   0
+	.byte  47,  33,   0
+
+	.byte 0xFE,  17,   0
+	.byte  78,  17,   0
+
+	.byte 0xFE,  17,   0
+	.byte  76,  33,   0
+	.byte  40,  33,   0
+
+	.byte 0xFE,  33,   0
+	.byte  71,  33,   0
+	.byte  47,  33,   0
+
+	.byte 0xFE,  33,   0
+	.byte  64, 133,   0
+	.byte  59, 133,   0
+	.byte  55, 133,   0
+	.byte  40,  33,   0
+
+	.byte 0xFE,  33,   0
+	.byte  47,  33,   0
+
+	.byte 0xFE,  33,   0
+	.byte  40,  33,   0
+
+	.byte 0xFE,  33,   0
+	.byte  76,  33,   0
+	.byte  47,  33,   0
+
+	.byte 0xFE,  33,   0
+	.byte  75,  33,   0
+	.byte  63, 133,   0
+	.byte  59, 133,   0
+	.byte  55, 133,   0
+	.byte  39,  33,   0
+
+	.byte 0xFE,  33,   0
+	.byte  71,  33,   0
+	.byte  47,  33,   0
+
+	.byte 0xFE,  33,   0
+	.byte  71,  33,   0
+	.byte  39,  33,   0
+
+	.byte 0xFE,  33,   0
+	.byte  71,  33,   0
+	.byte  47,  33,   0
+
+	.byte 0xFE,  33,   0
+	.byte  72,  67,   0
+	.byte  63, 133,   0
+	.byte  59, 133,   0
+	.byte  55, 133,   0
+	.byte  39,  33,   0
+
+	.byte 0xFE,  33,   0
+	.byte  47,  33,   0
+
+	.byte 0xFE,  33,   0
+	.byte  71,  67,   0
+	.byte  39,  33,   0
+
+	.byte 0xFE,  33,   0
+	.byte  47,  33,   0
+
+	.byte 0xFE,  33,   0
+	.byte  69,  17,   0
+	.byte  60, 133,   0
+	.byte  57, 133,   0
+	.byte  52, 133,   0
+	.byte  40,  33,   0
+
+	.byte 0xFE,  17,   0
+	.byte  71,  17,   0
+
+	.byte 0xFE,  17,   0
+	.byte  72,  17,   0
+	.byte  48,  33,   0
+
+	.byte 0xFE,  17,   0
+	.byte  71,  17,   0
+
+	.byte 0xFE,  17,   0
+	.byte  69,  33,   0
+	.byte  40,  33,   0
+
+	.byte 0xFE,  33,   0
+	.byte  64,  33,   0
+	.byte  48,  33,   0
+
+	.byte 0xFE,  33,   0
+	.byte  60, 133,   0
+	.byte  57, 133,   0
+	.byte  52, 133,   0
+	.byte  40,  33,   0
+
+	.byte 0xFE,  33,   0
+	.byte  48,  33,   0
+
+	.byte 0xFE,  33,   0
+	.byte  40,  33,   0
+
+	.byte 0xFE,  33,   0
+	.byte  71,  33,   0
+	.byte  48,  33,   0
+
+	.byte 0xFE,  33,   0
+	.byte  75,  67,   0
+	.byte  66, 133,   0
+	.byte  63, 133,   0
+	.byte  59, 133,   0
+	.byte  35,  33,   0
+
+	.byte 0xFE,  33,   0
+	.byte  42,  33,   0
+
+	.byte 0xFE,  33,   0
+	.byte  71,  67,   0
+	.byte  35,  33,   0
+
+	.byte 0xFE,  33,   0
+	.byte  42,  33,   0
+
+	.byte 0xFE,  33,   0
+	.byte  83,  33,   0
+	.byte  69, 133,   0
+	.byte  66, 133,   0
+	.byte  63, 133,   0
+	.byte  35,  33,   0
+
+	.byte 0xFE,  33,   0
+	.byte  81,  33,   0
+	.byte  42,  33,   0
+
+	.byte 0xFE,  33,   0
+	.byte  79,  33,   0
+	.byte  35,  33,   0
+
+	.byte 0xFE,  33,   0
+	.byte  78,  33,   0
+	.byte  42,  33,   0
+
+	.byte 0xFE,  33,   0
+	.byte  79,  17,   0
+	.byte  67, 133,   0
+	.byte  64, 133,   0
+	.byte  59, 133,   0
+	.byte  43,  33,   0
+
+	.byte 0xFE,  17,   0
+	.byte  81,  17,   0
+
+	.byte 0xFE,  17,   0
+	.byte  83,  17,   0
+	.byte  47,  33,   0
+
+	.byte 0xFE,  17,   0
+	.byte  81,  17,   0
+
+	.byte 0xFE,  17,   0
+	.byte  79,  33,   0
+	.byte  43,  33,   0
+
+	.byte 0xFE,  33,   0
+	.byte  76,  33,   0
+	.byte  47,  33,   0
+
+	.byte 0xFE,  33,   0
+	.byte  67, 133,   0
+	.byte  64, 133,   0
+	.byte  59, 133,   0
+	.byte  43,  33,   0
+
+	.byte 0xFE,  33,   0
+	.byte  47,  33,   0
+
+	.byte 0xFE,  33,   0
+	.byte  43,  33,   0
+
+	.byte 0xFE,  33,   0
+	.byte  79,  33,   0
+	.byte  47,  33,   0
+
+	.byte 0xFE,  33,   0
+	.byte  78,  33,   0
+	.byte  66, 133,   0
+	.byte  63, 133,   0
+	.byte  59, 133,   0
+	.byte  42,  33,   0
+
+	.byte 0xFE,  33,   0
+	.byte  75,  33,   0
+	.byte  47,  33,   0
+
+	.byte 0xFE,  33,   0
+	.byte  75,  33,   0
+	.byte  42,  33,   0
+
+	.byte 0xFE,  33,   0
+	.byte  75,  33,   0
+	.byte  47,  33,   0
+
+	.byte 0xFE,  33,   0
+	.byte  76,  67,   0
+	.byte  66, 133,   0
+	.byte  63, 133,   0
+	.byte  59, 133,   0
+	.byte  42,  33,   0
+
+	.byte 0xFE,  33,   0
+	.byte  47,  33,   0
+
+	.byte 0xFE,  33,   0
+	.byte  75,  67,   0
+	.byte  42,  33,   0
+
+	.byte 0xFE,  33,   0
+	.byte  47,  33,   0
+
+	.byte 0xFE,  33,   0
+	.byte  71,  17,   0
+	.byte  64, 133,   0
+	.byte  59, 133,   0
+	.byte  55, 133,   0
+	.byte  36,  33,   0
+
+	.byte 0xFE,  17,   0
+	.byte  72,  17,   0
+
+	.byte 0xFE,  17,   0
+	.byte  74,  17,   0
+	.byte  43,  33,   0
+
+	.byte 0xFE,  17,   0
+	.byte  72,  17,   0
+
+	.byte 0xFE,  17,   0
+	.byte  71,  33,   0
+	.byte  36,  33,   0
+
+	.byte 0xFE,  33,   0
+	.byte  67,  33,   0
+	.byte  43,  33,   0
+
+	.byte 0xFE,  33,   0
+	.byte  64, 133,   0
+	.byte  59, 133,   0
+	.byte  55, 133,   0
+	.byte  36,  33,   0
+
+	.byte 0xFE,  33,   0
+	.byte  43,  33,   0
+
+	.byte 0xFE,  33,   0
+	.byte  36,  33,   0
+
+	.byte 0xFE,  33,   0
+	.byte  67,  33,   0
+	.byte  43,  33,   0
+
+	.byte 0xFE,  33,   0
+	.byte  67, 133,   0
+	.byte  63, 133,   0
+	.byte  59, 133,   0
+	.byte  55, 133,   0
+	.byte  39,  33,   0
+
+	.byte 0xFE,  33,   0
+	.byte  47,  33,   0
+
+	.byte 0xFE,  33,   0
+	.byte  39,  33,   0
+
+	.byte 0xFE,  33,   0
+	.byte  47,  33,   0
+
+	.byte 0xFE,  33,   0
+	.byte  71, 100,   0
+	.byte  67, 133,   0
+	.byte  63, 133,   0
+	.byte  59, 133,   0
+	.byte  39,  33,   0
+
+	.byte 0xFE,  33,   0
+	.byte  47,  33,   0
+
+	.byte 0xFE,  33,   0
+	.byte  39,  33,   0
+
+	.byte 0xFE,  33,   0
+	.byte  76,  17,   0
+	.byte  47,  33,   0
+
+	.byte 0xFE,  17,   0
+	.byte  78,  17,   0
+
+	.byte 0xFE,  17,   0
+	.byte  79,  17,   0
+	.byte  67, 133,   0
+	.byte  64, 133,   0
+	.byte  59, 133,   0
+	.byte  48, 133,   0
+
+	.byte 0xFE,  17,   0
+	.byte  78,  17,   0
+
+	.byte 0xFE,  17,   0
+	.byte  76,  17,   0
+
+	.byte 0xFE,  17,   0
+	.byte  78,  17,   0
+
+	.byte 0xFE,  17,   0
+	.byte  79,  17,   0
+
+	.byte 0xFE,  33,   0
+	.byte  72,  17,   0
+
+	.byte 0xFE,  17,   0
+	.byte  74,  17,   0
+
+	.byte 0xFE,  17,   0
+	.byte  76,  17,   0
+	.byte  64, 133,   0
+	.byte  60, 133,   0
+	.byte  57, 133,   0
+	.byte  45, 133,   0
+
+	.byte 0xFE,  17,   0
+	.byte  74,  17,   0
+
+	.byte 0xFE,  17,   0
+	.byte  72,  17,   0
+
+	.byte 0xFE,  17,   0
+	.byte  74,  17,   0
+
+	.byte 0xFE,  17,   0
+	.byte  76,  17,   0
+
+	.byte 0xFE,  67,   0
+	.byte  75,  67,   0
+	.byte  63, 133,   0
+	.byte  60, 133,   0
+	.byte  56, 133,   0
+	.byte  44, 133,   0
+
+	.byte 0xFE,  67,   0
+	.byte  72,  67,   0
+
+	.byte 0xFE,  67,   0
+	.byte  71,  67,   0
+	.byte  43,  67,   0
+
+	.byte 0xFE,  67,   0
+	.byte  42,  66,   0
+
+	.byte 0xFE,  66,   0
+	.byte 0xFF,   0,   0
+
+	melody_ptr: .word melody
+	music_ticks_remaining: .word 0
+
+death_tune:
+	.byte  83,  40, 48
+	.byte  78,  40, 48
+	.byte  79,  40, 48
+	.byte  75,  40, 48
+	.byte  76, 200, 48
+	.byte 0xFF,   0, 0
+
 .text
 .globl main
 main:
@@ -198,6 +758,7 @@ difficulty_end:
 	ret
 
 main_loop:
+	call play_music_tick
 	lw a0, difficulty_ms
 	li a7, 32
 	ecall
@@ -273,6 +834,7 @@ update_snake:
 
 grow_snake:
 	# OCTAVIO: sonido de haber comido manzana, un *ping* o algo del estilo
+	call play_eat_sfx
 	lw t0, snake_length
 	la t1, snake_length
 	addi t0, t0, 1
@@ -533,6 +1095,7 @@ game_over:
 	li a7, 4
 	ecall
 	
+	call play_death_tune
 	call death_anim
 	
 	li a7, 10
@@ -1912,6 +2475,107 @@ mode_select_screen:
     lw ra, 0(sp)
     addi sp, sp, 16
     ret
+
+play_music_tick:
+	la   t0, music_ticks_remaining
+	lw   t1, 0(t0)
+	beqz t1, pmt_read_entry
+	
+	lw   t2, difficulty_ms
+	sub  t1, t1, t2
+	
+	blez t1, pmt_gate_expired
+	sw   t1, 0(t0)
+	ret
+	
+pmt_gate_expired:
+	sw   zero, 0(t0)
+	ret
+
+pmt_read_entry:
+	la   t0, melody_ptr
+	lw   t1, 0(t0)
+	lbu  t2, 0(t1)
+
+	li   t3, 0xFF
+	bne  t2, t3, pmt_check_gate
+	la   t4, melody
+	sw   t4, 0(t0)
+	ret
+
+pmt_check_gate:
+	li   t3, 0xFE
+	bne  t2, t3, pmt_play_note
+	lbu  t3, 1(t1)
+	
+	slli t5, t3, 3
+	slli t4, t3, 1
+	add  t3, t5, t4
+	addi t1, t1, 3
+	sw   t1, 0(t0)
+	la   t0, music_ticks_remaining
+	sw   t3, 0(t0)
+	ret
+
+pmt_play_note:
+	lbu  t3, 1(t1)
+	lbu  t4, 2(t1)
+
+	slli t5, t3, 3
+	slli a1, t3, 1
+	add  a1, a1, t5
+
+	mv   a0, t2
+	mv   a2, t4
+	li   a3, 80
+	li   a7, 31
+	ecall
+
+	addi t1, t1, 3
+	sw   t1, 0(t0)
+	j    pmt_read_entry
+
+play_eat_sfx:
+	li   a0, 84
+	li   a1, 100
+	li   a2, 13
+	li   a3, 110
+	li   a7, 31
+	ecall
+	ret
+
+play_death_tune:
+	addi sp, sp, -16
+	sw   ra, 12(sp)
+
+	la   t0, death_tune
+
+pdt_loop:
+	lbu  t1, 0(t0)
+
+	li   t2, 0xFF
+	beq  t1, t2, pdt_done
+
+	lbu  t3, 1(t0)
+	lbu  t4, 2(t0)
+
+	slli t5, t3, 3
+	slli a1, t3, 1
+	add  a1, a1, t5
+
+	mv   a0, t1
+	mv   a2, t4
+	li   a3, 100
+	li   a7, 33
+	ecall
+
+	addi t0, t0, 3
+	j    pdt_loop
+
+pdt_done:
+	lw   ra, 12(sp)
+	addi sp, sp, 16
+	ret
 
 start_screen:
 
