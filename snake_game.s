@@ -28,6 +28,8 @@
 .text
 .globl main
 main:
+	# OCTAVIO: musica de fondo, a ser posible
+	
 	lw s0, screen
 	lw s1, snake_color
 	lw s4, snake_head_color
@@ -229,6 +231,7 @@ update_snake:
 	j dont_grow
 
 grow_snake:
+	# OCTAVIO: sonido de haber comido manzana, un *ping* o algo del estilo
 	lw t0, snake_length
 	la t1, snake_length
 	addi t0, t0, 1
@@ -484,14 +487,15 @@ draw_at:
 	ret
 
 game_over:
+	# OCTAVIO: sonido para game over
 	la a0, game_over_str
 	li a7, 4
 	ecall
 	
 	call death_anim
 	
-    	li a7, 10
-   	ecall
+	li a7, 10
+	ecall
 
 death_anim:
 	lw t0, screen		# Screen base address.
