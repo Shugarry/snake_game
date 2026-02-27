@@ -1,6 +1,6 @@
 import csv
 
-filename = 'obst.csv'  # your CSV file
+filename = 'p2_win.csv'  # your CSV file
 
 with open(filename, newline='') as csvfile:
     reader = csv.reader(csvfile)
