@@ -1,6 +1,6 @@
 import csv
 
-filename = 'balls.csv'  # your CSV file
+filename = 'obst.csv'  # your CSV file
 
 with open(filename, newline='') as csvfile:
     reader = csv.reader(csvfile)
