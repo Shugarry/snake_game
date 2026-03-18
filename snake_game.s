@@ -1,16 +1,16 @@
 .data
-	snake:			.space 1024
-	snake_b:		.space 1024
+	snake:		.space 1024
+	snake_b:	.space 1024
 	snake_length_b:	.word 3
-	snake_length:	.word 3		# snake length including head (makes life easier). starts at 2
-	head_x:			.word 3	# x, y coords for head
-	head_y:			.word 3
-	vel_x:			.word 1
-	vel_y:			.word 0
-	head_x_b:			.word 27
-	head_y_b:			.word 27
-	vel_x_b:			.word -1
-	vel_y_b:			.word 0
+	snake_length:	.word 3	# snake length including head (makes life easier). starts at 2
+	head_x:		.word 3	# x, y coords for head
+	head_y:		.word 3
+	vel_x:		.word 1
+	vel_y:		.word 0
+	head_x_b:	.word 27
+	head_y_b:	.word 27
+	vel_x_b:	.word -1
+	vel_y_b:	.word 0
 
 	black_color: 	.word 0x00000000
 	border_color:	.word 0x000000FF
@@ -18,11 +18,11 @@
 	snake_color_b:	.word 0x00006000 #dark green
 	snake_head_color:	.word 0x00FCBC3D
 	apple_color:	.word 0x00FF0000
-	text_color:		.word 0x00BBBBBB
+	text_color:	.word 0x00BBBBBB
 	
-	screen:			.word 0x10040000	# screen address
-	input:			.word 0xFFFF0000
-	input_data:		.word 0xFFFF0004
+	screen:		.word 0x10040000 # screen address
+	input:		.word 0xFFFF0000
+	input_data:	.word 0xFFFF0004
 	
 	bytes_per_row:	.word 128
 	total_bytes:	.word 4096
@@ -30,8 +30,8 @@
 	difficulty_ms:	.word 0
 
 	game_over_str:	.asciz "game over\n"
-	score_str:		.asciz "SCORE: "
-	newline:		.asciz "\n"
+	score_str:	.asciz "SCORE: "
+	newline:	.asciz "\n"
 
 	p1_wins_str:    .asciz "PLAYER ONE WINS\n"
 	p2_wins_str:    .asciz "PLAYER TWO WINS\n"
@@ -597,16 +597,18 @@ death_tune:
 
 .text
 .globl main
-main:
-	# OCTAVIO: musica de fondo, a ser posible
-	
+main:	
 	lw s0, screen
 	lw s1, snake_color
 	lw s4, snake_head_color
 	lw s2, head_x
 	lw s3, head_y
 
-	call mode_select_screen
+	call main_menu
+
+    la t0, input
+    lw t1, 4(t0)     # load pointer to key data
+    sw zero, 0(t1)   # clear the key register
 
 	call mode_select
 
@@ -615,8 +617,6 @@ main:
     la t0, input
     lw t1, 4(t0)     # load pointer to key data
     sw zero, 0(t1)   # clear the key register
-
-	call start_screen
 
 	call difficulty_select
 	
@@ -632,6 +632,8 @@ main:
 	la t5, snake        # array base
 	li t6, 0            # i = 0
 	li t4, 3
+
+	j init_loop
 
 init_loop:
     bge t6, t4, init_done
@@ -672,6 +674,8 @@ init_done:
 spawn_apple:
     addi sp, sp, -12
     sw   ra, 0(sp) 
+	j spawn_try
+
 spawn_try:
 
 #	random syscall for x y
@@ -706,7 +710,15 @@ spawn_try:
     addi sp, sp, 12
     ret
 
-mode_select:
+main_menu:
+	addi sp, sp, -16
+	sw ra, 0(sp)
+	
+	call draw_start_screen
+	j main_menu_input
+
+
+main_menu_input:
 	li a0, 100 # 100 ms delay
 	li a7, 32
 	ecall
@@ -715,19 +727,58 @@ mode_select:
 	lw t0, 4(t0)
 	lw t0, 0(t0)
 
+	bnez t0, main_menu_end
+
+	j main_menu_input
+
+main_menu_end:
+	lw ra, 0(sp)
+	addi sp, sp, 16
+	ret
+
+mode_select:
+	addi sp, sp, -16
+	sw ra, 0(sp)
+
+	call mode_select_screen
+	j mode_select_input
+
+
+mode_select_input:
+	li a0, 100 # 100 ms delay
+	li a7, 32
+	ecall
+
+    la t0, input	# check keypress
+	#TODO: CHECK IF INPUT IS READY AND THEN EXTRACT DATA
+	lw t0, 4(t0)
+	lw t0, 0(t0)
+
 	li t1, 49 # '1' ascii
 	beq t0, t1, chose_one_player
 	li t1, 50 # '2' ascii
 	beq t0, t1, chose_two_player
 
-	j mode_select
+	j mode_select_input
 
 chose_one_player:
-	ret
+    lw ra, 0(sp)
+    addi sp, sp, 16
+    ret
+
 chose_two_player:
 	j two_player_mode
 
+
 difficulty_select:
+	addi sp, sp, -16
+	sw ra, 0(sp)
+
+
+	call draw_difficulty_screen
+	j difficulty_select_input
+
+difficulty_select_input:
 	li a0, 100 # 100 ms delay
 	li a7, 32
 	ecall
@@ -741,21 +792,22 @@ difficulty_select:
 	li t1, 49 # '1' ascii
 	li t3, 200
 	sw t3, 0(t2)
-	beq t0, t1, difficulty_end
+	beq t0, t1, difficulty_select_end
 	li t1, 50 # '2' ascii
 	li t3, 100
 	sw t3, 0(t2)
-	beq t0, t1, difficulty_end
+	beq t0, t1, difficulty_select_end
 	li t1, 51 # '3' ascii
 	li t3, 50
 	sw t3, 0(t2)
-	beq t0, t1, difficulty_end
+	beq t0, t1, difficulty_select_end
 
-	j difficulty_select
+	j difficulty_select_input
 
-difficulty_end:
-
-	ret
+difficulty_select_end:
+    lw ra, 0(sp)
+    addi sp, sp, 16
+    ret
 
 main_loop:
 	call play_music_tick
@@ -956,6 +1008,7 @@ paused:
     la t0, input
     lw t1, 4(t0)     # load pointer to key data
     sw zero, 0(t1)   # clear the key register
+	j pause_loop
 
 pause_loop:
     la t0, input	# check keypress
@@ -1144,6 +1197,11 @@ clear_loop:
 clear_done:
 	ret
 	
+
+#
+# Two player mode implementation, separate execution branch from main_loop, differs at mode_select
+#
+
 two_player_mode:
 	call clear_screen
 	
@@ -1375,13 +1433,13 @@ update_snake_a_2p:
 	lw t4, apple_color
 	beq t3, t4, grow_snake_a_2p
 	lw t4, border_color
-	beq t3, t4, game_over_p1_wins
+	beq t3, t4, game_over_p2_wins
 	lw t4, snake_color
-	beq t3, t4, game_over_p1_wins
+	beq t3, t4, game_over_p2_wins
 	lw t4, snake_color_b
-	beq t3, t4, game_over_p1_wins
+	beq t3, t4, game_over_p2_wins
 	lw t4, snake_head_color
-	beq t3, t4, game_over_p1_wins
+	beq t3, t4, game_over_p2_wins
 
 	# paint tail end black
 	lw t2, 0(s5)
@@ -1468,13 +1526,13 @@ update_snake_b_2p:
 	lw t4, apple_color
 	beq t3, t4, grow_snake_b_2p
 	lw t4, border_color
-	beq t3, t4, game_over_p2_wins
+	beq t3, t4, game_over_p1_wins
 	lw t4, snake_color
-	beq t3, t4, game_over_p2_wins
+	beq t3, t4, game_over_p1_wins
 	lw t4, snake_color_b
-	beq t3, t4, game_over_p2_wins
+	beq t3, t4, game_over_p1_wins
 	lw t4, snake_head_color
-	beq t3, t4, game_over_p2_wins
+	beq t3, t4, game_over_p1_wins
 
 	# paint tail end black
 	lw t2, 0(s5)
@@ -1550,202 +1608,7 @@ game_over_p1_wins:
 	li a7, 4
 	ecall
 	call death_anim
-
-	li a0, 0x00FF40DD #pink
-	lw a1, screen
-
-	li a2, 5
-	li a3, 8
-	call draw_at
-	li a2, 6
-	li a3, 8
-	call draw_at
-	li a2, 7
-	li a3, 8
-	call draw_at
-	li a2, 10
-	li a3, 8
-	call draw_at
-	li a2, 13
-	li a3, 8
-	call draw_at
-	li a2, 15
-	li a3, 8
-	call draw_at
-	li a2, 17
-	li a3, 8
-	call draw_at
-	li a2, 18
-	li a3, 8
-	call draw_at
-	li a2, 19
-	li a3, 8
-	call draw_at
-	li a2, 21
-	li a3, 8
-	call draw_at
-	li a2, 24
-	li a3, 8
-	call draw_at
-	li a2, 26
-	li a3, 8
-	call draw_at
-	li a2, 5
-	li a3, 9
-	call draw_at
-	li a2, 7
-	li a3, 9
-	call draw_at
-	li a2, 9
-	li a3, 9
-	call draw_at
-	li a2, 10
-	li a3, 9
-	call draw_at
-	li a2, 13
-	li a3, 9
-	call draw_at
-	li a2, 15
-	li a3, 9
-	call draw_at
-	li a2, 18
-	li a3, 9
-	call draw_at
-	li a2, 21
-	li a3, 9
-	call draw_at
-	li a2, 22
-	li a3, 9
-	call draw_at
-	li a2, 24
-	li a3, 9
-	call draw_at
-	li a2, 26
-	li a3, 9
-	call draw_at
-	li a2, 5
-	li a3, 10
-	call draw_at
-	li a2, 6
-	li a3, 10
-	call draw_at
-	li a2, 7
-	li a3, 10
-	call draw_at
-	li a2, 10
-	li a3, 10
-	call draw_at
-	li a2, 13
-	li a3, 10
-	call draw_at
-	li a2, 15
-	li a3, 10
-	call draw_at
-	li a2, 18
-	li a3, 10
-	call draw_at
-	li a2, 21
-	li a3, 10
-	call draw_at
-	li a2, 22
-	li a3, 10
-	call draw_at
-	li a2, 23
-	li a3, 10
-	call draw_at
-	li a2, 24
-	li a3, 10
-	call draw_at
-	li a2, 26
-	li a3, 10
-	call draw_at
-	li a2, 5
-	li a3, 11
-	call draw_at
-	li a2, 10
-	li a3, 11
-	call draw_at
-	li a2, 13
-	li a3, 11
-	call draw_at
-	li a2, 15
-	li a3, 11
-	call draw_at
-	li a2, 18
-	li a3, 11
-	call draw_at
-	li a2, 21
-	li a3, 11
-	call draw_at
-	li a2, 23
-	li a3, 11
-	call draw_at
-	li a2, 24
-	li a3, 11
-	call draw_at
-	li a2, 26
-	li a3, 11
-	call draw_at
-	li a2, 5
-	li a3, 12
-	call draw_at
-	li a2, 10
-	li a3, 12
-	call draw_at
-	li a2, 13
-	li a3, 12
-	call draw_at
-	li a2, 14
-	li a3, 12
-	call draw_at
-	li a2, 15
-	li a3, 12
-	call draw_at
-	li a2, 18
-	li a3, 12
-	call draw_at
-	li a2, 21
-	li a3, 12
-	call draw_at
-	li a2, 24
-	li a3, 12
-	call draw_at
-	li a2, 5
-	li a3, 13
-	call draw_at
-	li a2, 9
-	li a3, 13
-	call draw_at
-	li a2, 10
-	li a3, 13
-	call draw_at
-	li a2, 11
-	li a3, 13
-	call draw_at
-	li a2, 13
-	li a3, 13
-	call draw_at
-	li a2, 15
-	li a3, 13
-	call draw_at
-	li a2, 17
-	li a3, 13
-	call draw_at
-	li a2, 18
-	li a3, 13
-	call draw_at
-	li a2, 19
-	li a3, 13
-	call draw_at
-	li a2, 21
-	li a3, 13
-	call draw_at
-	li a2, 24
-	li a3, 13
-	call draw_at
-	li a2, 26
-	li a3, 13
-	call draw_at
+	call draw_p1_wins_screen
 
 	li a7, 10
 	ecall
@@ -1754,10 +1617,337 @@ game_over_p2_wins:
 	la a0, p2_wins_str
 	li a7, 4
 	ecall
-	call death_anim
 
+	call death_anim
+	call draw_p2_wins_screen
+
+	li a7, 10
+	ecall
+
+#
+# Music Engine Implementation
+#
+
+play_music_tick:
+	la   t0, music_ticks_remaining
+	lw   t1, 0(t0)
+	beqz t1, pmt_read_entry
+	
+	lw   t2, difficulty_ms
+	sub  t1, t1, t2
+	
+	blez t1, pmt_gate_expired
+	sw   t1, 0(t0)
+	ret
+	
+pmt_gate_expired:
+	sw   zero, 0(t0)
+	ret
+
+pmt_read_entry:
+	la   t0, melody_ptr
+	lw   t1, 0(t0)
+	lbu  t2, 0(t1)
+
+	li   t3, 0xFF
+	bne  t2, t3, pmt_check_gate
+	la   t4, melody
+	sw   t4, 0(t0)
+	ret
+
+pmt_check_gate:
+	li   t3, 0xFE
+	bne  t2, t3, pmt_play_note
+	lbu  t3, 1(t1)
+	
+	slli t5, t3, 3
+	slli t4, t3, 1
+	add  t3, t5, t4
+	addi t1, t1, 3
+	sw   t1, 0(t0)
+	la   t0, music_ticks_remaining
+	sw   t3, 0(t0)
+	ret
+
+pmt_play_note:
+	lbu  t3, 1(t1)
+	lbu  t4, 2(t1)
+
+	slli t5, t3, 3
+	slli a1, t3, 1
+	add  a1, a1, t5
+
+	mv   a0, t2
+	mv   a2, t4
+	li   a3, 80
+	li   a7, 31
+	ecall
+
+	addi t1, t1, 3
+	sw   t1, 0(t0)
+	j    pmt_read_entry
+
+play_eat_sfx:
+	li   a0, 84
+	li   a1, 100
+	li   a2, 13
+	li   a3, 110
+	li   a7, 31
+	ecall
+	ret
+
+play_death_tune:
+	addi sp, sp, -16
+	sw   ra, 12(sp)
+
+	la   t0, death_tune
+
+pdt_loop:
+	lbu  t1, 0(t0)
+
+	li   t2, 0xFF
+	beq  t1, t2, pdt_done
+
+	lbu  t3, 1(t0)
+	lbu  t4, 2(t0)
+
+	slli t5, t3, 3
+	slli a1, t3, 1
+	add  a1, a1, t5
+
+	mv   a0, t1
+	mv   a2, t4
+	li   a3, 100
+	li   a7, 33
+	ecall
+
+	addi t0, t0, 3
+	j    pdt_loop
+
+pdt_done:
+	lw   ra, 12(sp)
+	addi sp, sp, 16
+	ret
+
+###############################################################################
+#                                                                             #
+#                                                                             #
+#                      just onscreen drawing, stop here                       #
+#                                                                             #
+#                                                                             #
+###############################################################################
+
+draw_p1_wins_screen:
+	addi sp, sp, -16
+	sw ra, 0(sp)
+	
 	li a0, 0x00FF40DD #pink
 	lw a1, screen
+
+	li a2, 5
+	li a3, 8
+	call draw_at
+	li a2, 6
+	li a3, 8
+	call draw_at
+	li a2, 7
+	li a3, 8
+	call draw_at
+	li a2, 10
+	li a3, 8
+	call draw_at
+	li a2, 13
+	li a3, 8
+	call draw_at
+	li a2, 15
+	li a3, 8
+	call draw_at
+	li a2, 17
+	li a3, 8
+	call draw_at
+	li a2, 18
+	li a3, 8
+	call draw_at
+	li a2, 19
+	li a3, 8
+	call draw_at
+	li a2, 21
+	li a3, 8
+	call draw_at
+	li a2, 24
+	li a3, 8
+	call draw_at
+	li a2, 26
+	li a3, 8
+	call draw_at
+	li a2, 5
+	li a3, 9
+	call draw_at
+	li a2, 7
+	li a3, 9
+	call draw_at
+	li a2, 9
+	li a3, 9
+	call draw_at
+	li a2, 10
+	li a3, 9
+	call draw_at
+	li a2, 13
+	li a3, 9
+	call draw_at
+	li a2, 15
+	li a3, 9
+	call draw_at
+	li a2, 18
+	li a3, 9
+	call draw_at
+	li a2, 21
+	li a3, 9
+	call draw_at
+	li a2, 22
+	li a3, 9
+	call draw_at
+	li a2, 24
+	li a3, 9
+	call draw_at
+	li a2, 26
+	li a3, 9
+	call draw_at
+	li a2, 5
+	li a3, 10
+	call draw_at
+	li a2, 6
+	li a3, 10
+	call draw_at
+	li a2, 7
+	li a3, 10
+	call draw_at
+	li a2, 10
+	li a3, 10
+	call draw_at
+	li a2, 13
+	li a3, 10
+	call draw_at
+	li a2, 15
+	li a3, 10
+	call draw_at
+	li a2, 18
+	li a3, 10
+	call draw_at
+	li a2, 21
+	li a3, 10
+	call draw_at
+	li a2, 22
+	li a3, 10
+	call draw_at
+	li a2, 23
+	li a3, 10
+	call draw_at
+	li a2, 24
+	li a3, 10
+	call draw_at
+	li a2, 26
+	li a3, 10
+	call draw_at
+	li a2, 5
+	li a3, 11
+	call draw_at
+	li a2, 10
+	li a3, 11
+	call draw_at
+	li a2, 13
+	li a3, 11
+	call draw_at
+	li a2, 15
+	li a3, 11
+	call draw_at
+	li a2, 18
+	li a3, 11
+	call draw_at
+	li a2, 21
+	li a3, 11
+	call draw_at
+	li a2, 23
+	li a3, 11
+	call draw_at
+	li a2, 24
+	li a3, 11
+	call draw_at
+	li a2, 26
+	li a3, 11
+	call draw_at
+	li a2, 5
+	li a3, 12
+	call draw_at
+	li a2, 10
+	li a3, 12
+	call draw_at
+	li a2, 13
+	li a3, 12
+	call draw_at
+	li a2, 14
+	li a3, 12
+	call draw_at
+	li a2, 15
+	li a3, 12
+	call draw_at
+	li a2, 18
+	li a3, 12
+	call draw_at
+	li a2, 21
+	li a3, 12
+	call draw_at
+	li a2, 24
+	li a3, 12
+	call draw_at
+	li a2, 5
+	li a3, 13
+	call draw_at
+	li a2, 9
+	li a3, 13
+	call draw_at
+	li a2, 10
+	li a3, 13
+	call draw_at
+	li a2, 11
+	li a3, 13
+	call draw_at
+	li a2, 13
+	li a3, 13
+	call draw_at
+	li a2, 15
+	li a3, 13
+	call draw_at
+	li a2, 17
+	li a3, 13
+	call draw_at
+	li a2, 18
+	li a3, 13
+	call draw_at
+	li a2, 19
+	li a3, 13
+	call draw_at
+	li a2, 21
+	li a3, 13
+	call draw_at
+	li a2, 24
+	li a3, 13
+	call draw_at
+	li a2, 26
+	li a3, 13
+	call draw_at
+
+	lw ra, 0(sp)
+	addi sp, sp, 16
+	ret
+
+draw_p2_wins_screen:
+	addi sp, sp, -16
+	sw ra, 0(sp)
+	
+	li a0, 0x00FF40DD #pink
+	lw a1, screen
+
 	li a2, 5
 	li a3, 8
 	call draw_at
@@ -1953,17 +2143,10 @@ game_over_p2_wins:
 	li a2, 26
 	li a3, 13
 	call draw_at
-
-	li a7, 10
-	ecall
-
-###############################################################################
-#                                                                             #
-#                                                                             #
-#                      just onscreen drawing, stop here                       #
-#                                                                             #
-#                                                                             #
-###############################################################################
+	
+	lw ra, 0(sp)
+	addi sp, sp, 16
+	ret
 
 draw_obstacles:
 	
@@ -2185,7 +2368,9 @@ draw_obstacles:
 mode_select_screen:
     addi sp, sp, -16
     sw ra, 0(sp)
-    
+
+	call clear_screen
+
 	li a0, 0x00FF40DD #pink
 	lw a1, screen
 
@@ -2476,112 +2661,12 @@ mode_select_screen:
     addi sp, sp, 16
     ret
 
-play_music_tick:
-	la   t0, music_ticks_remaining
-	lw   t1, 0(t0)
-	beqz t1, pmt_read_entry
-	
-	lw   t2, difficulty_ms
-	sub  t1, t1, t2
-	
-	blez t1, pmt_gate_expired
-	sw   t1, 0(t0)
-	ret
-	
-pmt_gate_expired:
-	sw   zero, 0(t0)
-	ret
-
-pmt_read_entry:
-	la   t0, melody_ptr
-	lw   t1, 0(t0)
-	lbu  t2, 0(t1)
-
-	li   t3, 0xFF
-	bne  t2, t3, pmt_check_gate
-	la   t4, melody
-	sw   t4, 0(t0)
-	ret
-
-pmt_check_gate:
-	li   t3, 0xFE
-	bne  t2, t3, pmt_play_note
-	lbu  t3, 1(t1)
-	
-	slli t5, t3, 3
-	slli t4, t3, 1
-	add  t3, t5, t4
-	addi t1, t1, 3
-	sw   t1, 0(t0)
-	la   t0, music_ticks_remaining
-	sw   t3, 0(t0)
-	ret
-
-pmt_play_note:
-	lbu  t3, 1(t1)
-	lbu  t4, 2(t1)
-
-	slli t5, t3, 3
-	slli a1, t3, 1
-	add  a1, a1, t5
-
-	mv   a0, t2
-	mv   a2, t4
-	li   a3, 80
-	li   a7, 31
-	ecall
-
-	addi t1, t1, 3
-	sw   t1, 0(t0)
-	j    pmt_read_entry
-
-play_eat_sfx:
-	li   a0, 84
-	li   a1, 100
-	li   a2, 13
-	li   a3, 110
-	li   a7, 31
-	ecall
-	ret
-
-play_death_tune:
-	addi sp, sp, -16
-	sw   ra, 12(sp)
-
-	la   t0, death_tune
-
-pdt_loop:
-	lbu  t1, 0(t0)
-
-	li   t2, 0xFF
-	beq  t1, t2, pdt_done
-
-	lbu  t3, 1(t0)
-	lbu  t4, 2(t0)
-
-	slli t5, t3, 3
-	slli a1, t3, 1
-	add  a1, a1, t5
-
-	mv   a0, t1
-	mv   a2, t4
-	li   a3, 100
-	li   a7, 33
-	ecall
-
-	addi t0, t0, 3
-	j    pdt_loop
-
-pdt_done:
-	lw   ra, 12(sp)
-	addi sp, sp, 16
-	ret
-
-start_screen:
-
+draw_difficulty_screen:
     addi sp, sp, -16
     sw ra, 0(sp)
     
+	call clear_screen
+
 	li a0, 0x00FF40DD #pink
 	lw a1, screen
 
@@ -3067,5 +3152,505 @@ start_screen:
 	call draw_at
 	
     lw ra, 0(sp)
+    addi sp, sp, 16
+    ret
+
+draw_start_screen:
+    addi sp, sp, -16
+    sw ra, 0(sp)
+    
+	call clear_screen
+
+	li a0, 0x00FF40DD #pink
+	lw a1, screen
+
+	li a2, 4
+	li a3, 5
+	call draw_at
+	li a2, 5
+	li a3, 5
+	call draw_at
+	li a2, 6
+	li a3, 5
+	call draw_at
+	li a2, 8
+	li a3, 5
+	call draw_at
+	li a2, 12
+	li a3, 5
+	call draw_at
+	li a2, 14
+	li a3, 5
+	call draw_at
+	li a2, 15
+	li a3, 5
+	call draw_at
+	li a2, 16
+	li a3, 5
+	call draw_at
+	li a2, 17
+	li a3, 5
+	call draw_at
+	li a2, 19
+	li a3, 5
+	call draw_at
+	li a2, 23
+	li a3, 5
+	call draw_at
+	li a2, 25
+	li a3, 5
+	call draw_at
+	li a2, 26
+	li a3, 5
+	call draw_at
+	li a2, 27
+	li a3, 5
+	call draw_at
+	li a2, 28
+	li a3, 5
+	call draw_at
+	li a2, 3
+	li a3, 6
+	call draw_at
+	li a2, 8
+	li a3, 6
+	call draw_at
+	li a2, 9
+	li a3, 6
+	call draw_at
+	li a2, 12
+	li a3, 6
+	call draw_at
+	li a2, 14
+	li a3, 6
+	call draw_at
+	li a2, 17
+	li a3, 6
+	call draw_at
+	li a2, 19
+	li a3, 6
+	call draw_at
+	li a2, 22
+	li a3, 6
+	call draw_at
+	li a2, 25
+	li a3, 6
+	call draw_at
+	li a2, 3
+	li a3, 7
+	call draw_at
+	li a2, 8
+	li a3, 7
+	call draw_at
+	li a2, 9
+	li a3, 7
+	call draw_at
+	li a2, 12
+	li a3, 7
+	call draw_at
+	li a2, 14
+	li a3, 7
+	call draw_at
+	li a2, 17
+	li a3, 7
+	call draw_at
+	li a2, 19
+	li a3, 7
+	call draw_at
+	li a2, 21
+	li a3, 7
+	call draw_at
+	li a2, 25
+	li a3, 7
+	call draw_at
+	li a2, 3
+	li a3, 8
+	call draw_at
+	li a2, 8
+	li a3, 8
+	call draw_at
+	li a2, 10
+	li a3, 8
+	call draw_at
+	li a2, 12
+	li a3, 8
+	call draw_at
+	li a2, 14
+	li a3, 8
+	call draw_at
+	li a2, 17
+	li a3, 8
+	call draw_at
+	li a2, 19
+	li a3, 8
+	call draw_at
+	li a2, 20
+	li a3, 8
+	call draw_at
+	li a2, 25
+	li a3, 8
+	call draw_at
+	li a2, 3
+	li a3, 9
+	call draw_at
+	li a2, 4
+	li a3, 9
+	call draw_at
+	li a2, 5
+	li a3, 9
+	call draw_at
+	li a2, 6
+	li a3, 9
+	call draw_at
+	li a2, 8
+	li a3, 9
+	call draw_at
+	li a2, 10
+	li a3, 9
+	call draw_at
+	li a2, 11
+	li a3, 9
+	call draw_at
+	li a2, 12
+	li a3, 9
+	call draw_at
+	li a2, 14
+	li a3, 9
+	call draw_at
+	li a2, 15
+	li a3, 9
+	call draw_at
+	li a2, 16
+	li a3, 9
+	call draw_at
+	li a2, 17
+	li a3, 9
+	call draw_at
+	li a2, 19
+	li a3, 9
+	call draw_at
+	li a2, 20
+	li a3, 9
+	call draw_at
+	li a2, 25
+	li a3, 9
+	call draw_at
+	li a2, 26
+	li a3, 9
+	call draw_at
+	li a2, 27
+	li a3, 9
+	call draw_at
+	li a2, 28
+	li a3, 9
+	call draw_at
+	li a2, 6
+	li a3, 10
+	call draw_at
+	li a2, 8
+	li a3, 10
+	call draw_at
+	li a2, 11
+	li a3, 10
+	call draw_at
+	li a2, 12
+	li a3, 10
+	call draw_at
+	li a2, 14
+	li a3, 10
+	call draw_at
+	li a2, 17
+	li a3, 10
+	call draw_at
+	li a2, 19
+	li a3, 10
+	call draw_at
+	li a2, 20
+	li a3, 10
+	call draw_at
+	li a2, 25
+	li a3, 10
+	call draw_at
+	li a2, 6
+	li a3, 11
+	call draw_at
+	li a2, 8
+	li a3, 11
+	call draw_at
+	li a2, 12
+	li a3, 11
+	call draw_at
+	li a2, 14
+	li a3, 11
+	call draw_at
+	li a2, 17
+	li a3, 11
+	call draw_at
+	li a2, 19
+	li a3, 11
+	call draw_at
+	li a2, 21
+	li a3, 11
+	call draw_at
+	li a2, 25
+	li a3, 11
+	call draw_at
+	li a2, 6
+	li a3, 12
+	call draw_at
+	li a2, 8
+	li a3, 12
+	call draw_at
+	li a2, 12
+	li a3, 12
+	call draw_at
+	li a2, 14
+	li a3, 12
+	call draw_at
+	li a2, 17
+	li a3, 12
+	call draw_at
+	li a2, 19
+	li a3, 12
+	call draw_at
+	li a2, 22
+	li a3, 12
+	call draw_at
+	li a2, 25
+	li a3, 12
+	call draw_at
+	li a2, 3
+	li a3, 13
+	call draw_at
+	li a2, 4
+	li a3, 13
+	call draw_at
+	li a2, 5
+	li a3, 13
+	call draw_at
+	li a2, 8
+	li a3, 13
+	call draw_at
+	li a2, 12
+	li a3, 13
+	call draw_at
+	li a2, 14
+	li a3, 13
+	call draw_at
+	li a2, 17
+	li a3, 13
+	call draw_at
+	li a2, 19
+	li a3, 13
+	call draw_at
+	li a2, 23
+	li a3, 13
+	call draw_at
+	li a2, 25
+	li a3, 13
+	call draw_at
+	li a2, 26
+	li a3, 13
+	call draw_at
+	li a2, 27
+	li a3, 13
+	call draw_at
+	li a2, 28
+	li a3, 13
+	call draw_at
+	li a2, 3
+	li a3, 22
+	call draw_at
+	li a2, 4
+	li a3, 22
+	call draw_at
+	li a2, 5
+	li a3, 22
+	call draw_at
+	li a2, 7
+	li a3, 22
+	call draw_at
+	li a2, 10
+	li a3, 22
+	call draw_at
+	li a2, 12
+	li a3, 22
+	call draw_at
+	li a2, 14
+	li a3, 22
+	call draw_at
+	li a2, 18
+	li a3, 22
+	call draw_at
+	li a2, 20
+	li a3, 22
+	call draw_at
+	li a2, 22
+	li a3, 22
+	call draw_at
+	li a2, 23
+	li a3, 22
+	call draw_at
+	li a2, 24
+	li a3, 22
+	call draw_at
+	li a2, 26
+	li a3, 22
+	call draw_at
+	li a2, 28
+	li a3, 22
+	call draw_at
+	li a2, 3
+	li a3, 23
+	call draw_at
+	li a2, 5
+	li a3, 23
+	call draw_at
+	li a2, 7
+	li a3, 23
+	call draw_at
+	li a2, 8
+	li a3, 23
+	call draw_at
+	li a2, 10
+	li a3, 23
+	call draw_at
+	li a2, 12
+	li a3, 23
+	call draw_at
+	li a2, 14
+	li a3, 23
+	call draw_at
+	li a2, 18
+	li a3, 23
+	call draw_at
+	li a2, 19
+	li a3, 23
+	call draw_at
+	li a2, 22
+	li a3, 23
+	call draw_at
+	li a2, 26
+	li a3, 23
+	call draw_at
+	li a2, 28
+	li a3, 23
+	call draw_at
+	li a2, 3
+	li a3, 24
+	call draw_at
+	li a2, 4
+	li a3, 24
+	call draw_at
+	li a2, 5
+	li a3, 24
+	call draw_at
+	li a2, 7
+	li a3, 24
+	call draw_at
+	li a2, 8
+	li a3, 24
+	call draw_at
+	li a2, 9
+	li a3, 24
+	call draw_at
+	li a2, 10
+	li a3, 24
+	call draw_at
+	li a2, 12
+	li a3, 24
+	call draw_at
+	li a2, 13
+	li a3, 24
+	call draw_at
+	li a2, 14
+	li a3, 24
+	call draw_at
+	li a2, 18
+	li a3, 24
+	call draw_at
+	li a2, 22
+	li a3, 24
+	call draw_at
+	li a2, 23
+	li a3, 24
+	call draw_at
+	li a2, 24
+	li a3, 24
+	call draw_at
+	li a2, 26
+	li a3, 24
+	call draw_at
+	li a2, 27
+	li a3, 24
+	call draw_at
+	li a2, 28
+	li a3, 24
+	call draw_at
+	li a2, 3
+	li a3, 25
+	call draw_at
+	li a2, 5
+	li a3, 25
+	call draw_at
+	li a2, 7
+	li a3, 25
+	call draw_at
+	li a2, 9
+	li a3, 25
+	call draw_at
+	li a2, 10
+	li a3, 25
+	call draw_at
+	li a2, 13
+	li a3, 25
+	call draw_at
+	li a2, 18
+	li a3, 25
+	call draw_at
+	li a2, 19
+	li a3, 25
+	call draw_at
+	li a2, 22
+	li a3, 25
+	call draw_at
+	li a2, 27
+	li a3, 25
+	call draw_at
+	li a2, 3
+	li a3, 26
+	call draw_at
+	li a2, 5
+	li a3, 26
+	call draw_at
+	li a2, 7
+	li a3, 26
+	call draw_at
+	li a2, 10
+	li a3, 26
+	call draw_at
+	li a2, 13
+	li a3, 26
+	call draw_at
+	li a2, 18
+	li a3, 26
+	call draw_at
+	li a2, 20
+	li a3, 26
+	call draw_at
+	li a2, 22
+	li a3, 26
+	call draw_at
+	li a2, 23
+	li a3, 26
+	call draw_at
+	li a2, 24
+	li a3, 26
+	call draw_at
+	li a2, 27
+	li a3, 26
+	call draw_at
+
+	lw ra, 0(sp)
     addi sp, sp, 16
     ret
