@@ -1433,13 +1433,13 @@ update_snake_a_2p:
 	lw t4, apple_color
 	beq t3, t4, grow_snake_a_2p
 	lw t4, border_color
-	beq t3, t4, game_over_p1_wins
+	beq t3, t4, game_over_p2_wins
 	lw t4, snake_color
-	beq t3, t4, game_over_p1_wins
+	beq t3, t4, game_over_p2_wins
 	lw t4, snake_color_b
-	beq t3, t4, game_over_p1_wins
+	beq t3, t4, game_over_p2_wins
 	lw t4, snake_head_color
-	beq t3, t4, game_over_p1_wins
+	beq t3, t4, game_over_p2_wins
 
 	# paint tail end black
 	lw t2, 0(s5)
@@ -1526,13 +1526,13 @@ update_snake_b_2p:
 	lw t4, apple_color
 	beq t3, t4, grow_snake_b_2p
 	lw t4, border_color
-	beq t3, t4, game_over_p2_wins
+	beq t3, t4, game_over_p1_wins
 	lw t4, snake_color
-	beq t3, t4, game_over_p2_wins
+	beq t3, t4, game_over_p1_wins
 	lw t4, snake_color_b
-	beq t3, t4, game_over_p2_wins
+	beq t3, t4, game_over_p1_wins
 	lw t4, snake_head_color
-	beq t3, t4, game_over_p2_wins
+	beq t3, t4, game_over_p1_wins
 
 	# paint tail end black
 	lw t2, 0(s5)
