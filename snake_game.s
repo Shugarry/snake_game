@@ -597,9 +597,7 @@ death_tune:
 
 .text
 .globl main
-main:
-	# OCTAVIO: musica de fondo, a ser posible
-	
+main:	
 	lw s0, screen
 	lw s1, snake_color
 	lw s4, snake_head_color
@@ -1144,6 +1142,11 @@ clear_loop:
 clear_done:
 	ret
 	
+
+#
+# Two player mode implementation, separate execution branch from main_loop, differs at mode_select
+#
+
 two_player_mode:
 	call clear_screen
 	
@@ -1550,6 +1553,118 @@ game_over_p1_wins:
 	li a7, 4
 	ecall
 	call death_anim
+#
+# Music Engine Implementation
+#
+
+play_music_tick:
+	la   t0, music_ticks_remaining
+	lw   t1, 0(t0)
+	beqz t1, pmt_read_entry
+	
+	lw   t2, difficulty_ms
+	sub  t1, t1, t2
+	
+	blez t1, pmt_gate_expired
+	sw   t1, 0(t0)
+	ret
+	
+pmt_gate_expired:
+	sw   zero, 0(t0)
+	ret
+
+pmt_read_entry:
+	la   t0, melody_ptr
+	lw   t1, 0(t0)
+	lbu  t2, 0(t1)
+
+	li   t3, 0xFF
+	bne  t2, t3, pmt_check_gate
+	la   t4, melody
+	sw   t4, 0(t0)
+	ret
+
+pmt_check_gate:
+	li   t3, 0xFE
+	bne  t2, t3, pmt_play_note
+	lbu  t3, 1(t1)
+	
+	slli t5, t3, 3
+	slli t4, t3, 1
+	add  t3, t5, t4
+	addi t1, t1, 3
+	sw   t1, 0(t0)
+	la   t0, music_ticks_remaining
+	sw   t3, 0(t0)
+	ret
+
+pmt_play_note:
+	lbu  t3, 1(t1)
+	lbu  t4, 2(t1)
+
+	slli t5, t3, 3
+	slli a1, t3, 1
+	add  a1, a1, t5
+
+	mv   a0, t2
+	mv   a2, t4
+	li   a3, 80
+	li   a7, 31
+	ecall
+
+	addi t1, t1, 3
+	sw   t1, 0(t0)
+	j    pmt_read_entry
+
+play_eat_sfx:
+	li   a0, 84
+	li   a1, 100
+	li   a2, 13
+	li   a3, 110
+	li   a7, 31
+	ecall
+	ret
+
+play_death_tune:
+	addi sp, sp, -16
+	sw   ra, 12(sp)
+
+	la   t0, death_tune
+
+pdt_loop:
+	lbu  t1, 0(t0)
+
+	li   t2, 0xFF
+	beq  t1, t2, pdt_done
+
+	lbu  t3, 1(t0)
+	lbu  t4, 2(t0)
+
+	slli t5, t3, 3
+	slli a1, t3, 1
+	add  a1, a1, t5
+
+	mv   a0, t1
+	mv   a2, t4
+	li   a3, 100
+	li   a7, 33
+	ecall
+
+	addi t0, t0, 3
+	j    pdt_loop
+
+pdt_done:
+	lw   ra, 12(sp)
+	addi sp, sp, 16
+	ret
+
+###############################################################################
+#                                                                             #
+#                                                                             #
+#                      just onscreen drawing, stop here                       #
+#                                                                             #
+#                                                                             #
+###############################################################################
 
 	li a0, 0x00FF40DD #pink
 	lw a1, screen
@@ -1956,14 +2071,7 @@ game_over_p2_wins:
 
 	li a7, 10
 	ecall
-
-###############################################################################
-#                                                                             #
-#                                                                             #
-#                      just onscreen drawing, stop here                       #
-#                                                                             #
-#                                                                             #
-###############################################################################
+	
 
 draw_obstacles:
 	
@@ -2475,109 +2583,6 @@ mode_select_screen:
     lw ra, 0(sp)
     addi sp, sp, 16
     ret
-
-play_music_tick:
-	la   t0, music_ticks_remaining
-	lw   t1, 0(t0)
-	beqz t1, pmt_read_entry
-	
-	lw   t2, difficulty_ms
-	sub  t1, t1, t2
-	
-	blez t1, pmt_gate_expired
-	sw   t1, 0(t0)
-	ret
-	
-pmt_gate_expired:
-	sw   zero, 0(t0)
-	ret
-
-pmt_read_entry:
-	la   t0, melody_ptr
-	lw   t1, 0(t0)
-	lbu  t2, 0(t1)
-
-	li   t3, 0xFF
-	bne  t2, t3, pmt_check_gate
-	la   t4, melody
-	sw   t4, 0(t0)
-	ret
-
-pmt_check_gate:
-	li   t3, 0xFE
-	bne  t2, t3, pmt_play_note
-	lbu  t3, 1(t1)
-	
-	slli t5, t3, 3
-	slli t4, t3, 1
-	add  t3, t5, t4
-	addi t1, t1, 3
-	sw   t1, 0(t0)
-	la   t0, music_ticks_remaining
-	sw   t3, 0(t0)
-	ret
-
-pmt_play_note:
-	lbu  t3, 1(t1)
-	lbu  t4, 2(t1)
-
-	slli t5, t3, 3
-	slli a1, t3, 1
-	add  a1, a1, t5
-
-	mv   a0, t2
-	mv   a2, t4
-	li   a3, 80
-	li   a7, 31
-	ecall
-
-	addi t1, t1, 3
-	sw   t1, 0(t0)
-	j    pmt_read_entry
-
-play_eat_sfx:
-	li   a0, 84
-	li   a1, 100
-	li   a2, 13
-	li   a3, 110
-	li   a7, 31
-	ecall
-	ret
-
-play_death_tune:
-	addi sp, sp, -16
-	sw   ra, 12(sp)
-
-	la   t0, death_tune
-
-pdt_loop:
-	lbu  t1, 0(t0)
-
-	li   t2, 0xFF
-	beq  t1, t2, pdt_done
-
-	lbu  t3, 1(t0)
-	lbu  t4, 2(t0)
-
-	slli t5, t3, 3
-	slli a1, t3, 1
-	add  a1, a1, t5
-
-	mv   a0, t1
-	mv   a2, t4
-	li   a3, 100
-	li   a7, 33
-	ecall
-
-	addi t0, t0, 3
-	j    pdt_loop
-
-pdt_done:
-	lw   ra, 12(sp)
-	addi sp, sp, 16
-	ret
-
-start_screen:
 
     addi sp, sp, -16
     sw ra, 0(sp)
