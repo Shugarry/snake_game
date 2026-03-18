@@ -633,6 +633,8 @@ main:
 	li t6, 0            # i = 0
 	li t4, 3
 
+	j init_loop
+
 init_loop:
     bge t6, t4, init_done
 
@@ -1006,6 +1008,7 @@ paused:
     la t0, input
     lw t1, 4(t0)     # load pointer to key data
     sw zero, 0(t1)   # clear the key register
+	j pause_loop
 
 pause_loop:
     la t0, input	# check keypress
