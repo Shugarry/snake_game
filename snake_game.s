@@ -1,16 +1,16 @@
 .data
-	snake:			.space 1024
-	snake_b:		.space 1024
+	snake:		.space 1024
+	snake_b:	.space 1024
 	snake_length_b:	.word 3
-	snake_length:	.word 3		# snake length including head (makes life easier). starts at 2
-	head_x:			.word 3	# x, y coords for head
-	head_y:			.word 3
-	vel_x:			.word 1
-	vel_y:			.word 0
-	head_x_b:			.word 27
-	head_y_b:			.word 27
-	vel_x_b:			.word -1
-	vel_y_b:			.word 0
+	snake_length:	.word 3	# snake length including head (makes life easier). starts at 2
+	head_x:		.word 3	# x, y coords for head
+	head_y:		.word 3
+	vel_x:		.word 1
+	vel_y:		.word 0
+	head_x_b:	.word 27
+	head_y_b:	.word 27
+	vel_x_b:	.word -1
+	vel_y_b:	.word 0
 
 	black_color: 	.word 0x00000000
 	border_color:	.word 0x000000FF
@@ -18,11 +18,11 @@
 	snake_color_b:	.word 0x00006000 #dark green
 	snake_head_color:	.word 0x00FCBC3D
 	apple_color:	.word 0x00FF0000
-	text_color:		.word 0x00BBBBBB
+	text_color:	.word 0x00BBBBBB
 	
-	screen:			.word 0x10040000	# screen address
-	input:			.word 0xFFFF0000
-	input_data:		.word 0xFFFF0004
+	screen:		.word 0x10040000 # screen address
+	input:		.word 0xFFFF0000
+	input_data:	.word 0xFFFF0004
 	
 	bytes_per_row:	.word 128
 	total_bytes:	.word 4096
@@ -30,8 +30,8 @@
 	difficulty_ms:	.word 0
 
 	game_over_str:	.asciz "game over\n"
-	score_str:		.asciz "SCORE: "
-	newline:		.asciz "\n"
+	score_str:	.asciz "SCORE: "
+	newline:	.asciz "\n"
 
 	p1_wins_str:    .asciz "PLAYER ONE WINS\n"
 	p2_wins_str:    .asciz "PLAYER TWO WINS\n"
